@@ -1,0 +1,406 @@
+---
+author: dashashi
+comments: true
+date: 2011-09-28 19:18:52+00:00
+layout: post
+slug: '%e6%9c%80%e5%b0%8f%e6%a0%91%e5%bd%a2%e5%9b%be%ef%bc%8cpoj3164hdu2121'
+title: 最小树形图，POJ3164&HDU2121
+wordpress_id: 1391
+categories:
+- 未分类
+---
+
+前段时间的网赛有一道题目是最小树形图，感觉这玩意儿挺有用的，于是准备折腾下。最小树形图比较麻烦，加上这段时间各种事情外加不在状态，这玩意儿一折腾就是1个多礼拜……终于算是折腾出来了。<!-- more -->
+
+最小树形图的基本思路还算容易理解，百度百科里面写的挺详细的，大概就是找入边、找环、缩点的过程，不过具体实现的时候遇到的问题还是比较多，一是缩点具体如何实现，二是如何输出路径。POJ3164不需要输出路径，只需要输出结果，于是我一开始决定把这玩意儿过了。
+
+为了增加通用性，我是用邻接表+STL写的，具体实现的时候开一个merge数组记录某个点是否已经被合并了，如果没有被合并merge数组内容就是-1，如果被合并了就是合并后所在的那个节点的标号，pre数组记录当前找到的一堆入边所对应的前缀，len数组记录当前找到的一堆入边的长度
+
+接着就是比较朴素的一坨循环，先是一个二重循环找到最短入边，再一个dfs找环，如果找到环了就把环缩成一个点，具体缩点的时候是新开一个点，然后按照定义把被缩的点的出边都加到新开的那个点里面，然后把被缩的点的入边的长度及指向改了- -|（也可以直接添加一条心边，不过改的话速度要快一些，在HDU2121里面添加要TLE，而改不TLE），完了之后就是下一次循环了。
+
+HDU那个需要确定根，具体实现的时候是通过加一个超级根。但是输出根的时候需要知道整个树的构造（其实有其他办法，不过如果能够输出树的构造那显然通用很多），我YY到一个办法，对于每一条边，记录下org_u, org_v，表示这条边最初的起点跟终点。然后开一个uu跟vv数组，之后在寻找入边的过程中，更新一条边就把uu，vv也刷新一下，最后根据uu跟vv就能够得到整棵树的构造。
+
+贴代码……
+
+    
+    #include <cstdlib>
+    #include <cstdio>
+    #include <cstring>
+    #include <vector>
+    #include <cmath.>
+    
+    using namespace std;
+    
+    struct CNode {
+    	int v;
+    	double l;
+    
+    	CNode(int v, double l)
+    	{
+    		this->v = v;
+    		this->l = l;
+    	}
+    };
+    
+    const int MAXN = 2010;
+    
+    vector<CNode> a[MAXN];
+    
+    int n, m, nn; //nn表示添加扩展点之后的点上界
+    
+    int pre[MAXN], flag[MAXN], merge[MAXN];
+    double len[MAXN];
+    
+    double sum;
+    
+    void dfs1(int u)
+    {
+    	if (flag[u] > 0)
+    		return;
+    	flag[u] = 1;
+    	for (vector<CNode>::iterator i = a[u].begin(); i != a[u].end(); ++i) {
+    		dfs1(i->v);
+    	}
+    }
+    
+    bool Check(int root)
+    {
+    	memset(flag, 0, sizeof (flag));
+    	dfs1(root);
+    	for (int i = 0; i < n; ++i)
+    		if (!flag[i])
+    			return false;
+    	return true;
+    }
+    //dfs2，递归找环，如果找到就返回环中第一个点的标号，如果未找到就返回-1
+    //flag=0表示未发现，=1表示在栈里面，=-1表示已经处理过
+    
+    int dfs2(int u)
+    {
+    
+    	if (u < 0 || flag[u] < 0)
+    		return -1;
+    	if (flag[u] > 0)
+    		return u;
+    	flag[u] = 1;
+    	int ret = dfs2(pre[u]);
+    	flag[u] = -1;
+    	return ret;
+    }
+    //最小树形图,朱刘算法
+    //返回最小树形图的边长和，如果无解返回-1
+    
+    double ZhuLiu(int root)
+    {
+    	if (!Check(root))
+    		return -1;
+    	double ans = 0;
+    	for (int i = 0; i < 2 * n; ++i) {
+    		pre[i] = -1;
+    		len[i] = 0;
+    		merge[i] = i;
+    	}
+    	nn = n;
+    	while (true) {
+    		for (int i = 0; i < nn; ++i) {
+    			pre[i] = -1;
+    		}
+    		for (int i = 0; i < nn; ++i) {
+    			if (merge[i] != i)
+    				continue;
+    			for (vector<CNode>::iterator index = a[i].begin(); index != a[i].end(); ++index) {
+    				if (merge[index->v] != index->v)
+    					continue;
+    				if (pre[index->v] == -1 || len[index->v] > index->l) {
+    					pre[index->v] = i;
+    					len[index->v] = index->l;
+    				}
+    			}
+    		}
+    		bool noLoop = true;
+    		//找环
+    		for (int i = 0; i < nn; ++i) {
+    			flag[i] = 0;
+    		}
+    		pre[root] = -1;
+    		for (int u = 0; u < nn; ++u) {
+    			int t = dfs2(u);
+    			if (t < 0)
+    				continue;
+    			noLoop = false;
+    			//发现一个环，缩成点
+    			int now = t;
+    			do {
+    				merge[now] = nn;
+    				now = pre[now];
+    				ans += len[now];
+    			} while (now != t);
+    			//处理边
+    			a[nn].clear();
+    			for (int i = 0; i < nn; ++i) {
+    				if (merge[i] == nn) {
+    					for (vector<CNode>::iterator index = a[i].begin(); index != a[i].end(); ++index) {
+    						if (merge[index->v] == index->v)
+    							a[nn].push_back(CNode(index->v, index->l));
+    					}
+    				} else if (merge[i] == i) {
+    					int k = a[i].size();
+    					for (int j = 0; j<k; ++j) {
+    						if (merge[a[i][j].v] == nn){
+    							//a[i].push_back(CNode(nn, a[i][j].l - len[a[i][j].v]));
+    							a[i][j].l -= len[a[i][j].v];
+    							a[i][j].v = nn;
+    						}
+    					}
+    				}
+    			}
+    			nn++;
+    		}
+    		if (noLoop) {
+    			for (int i = 0; i < nn; ++i) {
+    				if (merge[i] == i && i != root){
+    					ans += len[i];
+    				}
+    			}
+    			for(int i = 0; i<nn; ++i)
+    				pre[vv[i]] = uu[i];
+    			pre[root] = -1;
+    			return ans;
+    		}
+    	}
+    }
+    
+    double x[MAXN], y[MAXN];
+    
+    double sqr(double k){
+    	return k*k;
+    }
+    
+    bool Solve()
+    {
+    	if (EOF == scanf("%d%d", &n, &m))
+    		return false;
+    
+    	for (int i = 0; i < n; ++i)
+    		a[i].clear();
+    	for(int i = 0; i<n; ++i){
+    		scanf("%lf%lf", &x[i], &y[i]);
+    	}
+    	for (int i = 0; i < m; ++i) {
+    		int u, v;
+    		scanf("%d%d", &u, &v);
+    		u--;
+    		v--;
+    		if (u == v)
+    			continue;
+    		a[u].push_back(CNode(v, sqrt(sqr(x[u]-x[v])+sqr(y[u]-y[v]))));
+    	}
+    	double ret = ZhuLiu(0);
+    	if (-1 == ret) {
+    		printf("poor snoopy\n");
+    	} else {
+    		printf("%.2f\n", ret);
+    	}
+    	return true;
+    }
+    
+    int main(int argc, char** argv)
+    {
+    //	freopen("in.txt", "r", stdin);
+    	while (Solve());
+    	return 0;
+    }
+
+
+
+    
+    #include <cstdlib>
+    #include <cstdio>
+    #include <cstring>
+    #include <vector>
+    #include <cmath>
+    
+    using namespace std;
+    
+    struct CNode {
+    	short v, org_u, org_v;
+    	double l;
+    
+    	CNode(short v, double l, short org_u, short org_v)
+    	{
+    		this->v = v;
+    		this->l = l;
+    		this->org_u = org_u;
+    		this->org_v = org_v;
+    	}
+    };
+    
+    const int MAXN = 2010;
+    
+    vector<CNode> a[MAXN];
+    
+    int n, m, nn; //nn表示添加扩展点之后的点上界
+    
+    int pre[MAXN], flag[MAXN], merge[MAXN], uu[MAXN], vv[MAXN];
+    double len[MAXN];
+    
+    double sum;
+    
+    void dfs1(int u)
+    {
+    	if (flag[u] > 0)
+    		return;
+    	flag[u] = 1;
+    	for (vector<CNode>::iterator i = a[u].begin(); i != a[u].end(); ++i) {
+    		dfs1(i->v);
+    	}
+    }
+    
+    bool Check(int root)
+    {
+    	memset(flag, 0, sizeof (flag));
+    	dfs1(root);
+    	for (int i = 0; i < n; ++i)
+    		if (!flag[i])
+    			return false;
+    	return true;
+    }
+    //dfs2，递归找环，如果找到就返回环中第一个点的标号，如果未找到就返回-1
+    //flag=0表示未发现，=1表示在栈里面，=-1表示已经处理过
+    
+    int dfs2(int u)
+    {
+    
+    	if (u < 0 || flag[u] < 0)
+    		return -1;
+    	if (flag[u] > 0)
+    		return u;
+    	flag[u] = 1;
+    	int ret = dfs2(pre[u]);
+    	flag[u] = -1;
+    	return ret;
+    }
+    //最小树形图,朱刘算法
+    //返回最小树形图的边长和，如果无解返回-1
+    
+    double ZhuLiu(int root)
+    {
+    	if (!Check(root))
+    		return -1;
+    	double ans = 0;
+    	for (int i = 0; i < 2 * n; ++i) {
+    		pre[i] = -1;
+    		len[i] = 0;
+    		merge[i] = i;
+    		uu[i] = -1;
+    	}
+    	nn = n;
+    	while (true) {
+    		for (int i = 0; i < nn; ++i) {
+    			pre[i] = -1;
+    		}
+    		for (int i = 0; i < nn; ++i) {
+    			if (merge[i] != i)
+    				continue;
+    			for (vector<CNode>::iterator index = a[i].begin(); index != a[i].end(); ++index) {
+    				if (merge[index->v] != index->v)
+    					continue;
+    				if (pre[index->v] == -1 || len[index->v] > index->l) {
+    					pre[index->v] = i;
+    					len[index->v] = index->l;
+    					uu[index->v] = index->org_u;
+    					vv[index->v] = index->org_v;
+    				}
+    			}
+    		}
+    		bool noLoop = true;
+    		//找环
+    		for (int i = 0; i < nn; ++i) {
+    			flag[i] = 0;
+    		}
+    		pre[root] = -1;
+    		for (int u = 0; u < nn; ++u) {
+    			int t = dfs2(u);
+    			if (t < 0)
+    				continue;
+    			noLoop = false;
+    			//发现一个环，缩成点
+    			int now = t;
+    			do {
+    				merge[now] = nn;
+    				now = pre[now];
+    				ans += len[now];
+    			} while (now != t);
+    			//处理边
+    			a[nn].clear();
+    			for (int i = 0; i < nn; ++i) {
+    				if (merge[i] == nn) {
+    					for (vector<CNode>::iterator index = a[i].begin(); index != a[i].end(); ++index) {
+    						if (merge[index->v] == index->v)
+    							a[nn].push_back(CNode(index->v, index->l, index->org_u, index->org_v));
+    					}
+    				} else if (merge[i] == i) {
+    					int k = a[i].size();
+    					for (int j = 0; j<k; ++j) {
+    						if (merge[a[i][j].v] == nn){
+    							a[i][j].l -= len[a[i][j].v];
+    							a[i][j].v = nn;
+    						}
+    					}
+    				}
+    			}
+    			nn++;
+    		}
+    		if (noLoop) {
+    			for (int i = 0; i < nn; ++i) {
+    				if (merge[i] == i)
+    					ans += len[i];
+    			}
+    			for(int i = 0; i<nn; ++i){
+    				if(i != root)
+    					pre[vv[i]] = uu[i];
+    			}
+    			return ans;
+    		}
+    	}
+    }
+    
+    bool Solve()
+    {
+    	if (EOF == scanf("%d%d", &n, &m))
+    		return false;
+    	for (int i = 0; i < MAXN; ++i)
+    		a[i] = vector<CNode>();
+    	sum = 0;
+    	for (int i = 0; i < m; ++i) {
+    		int u, v, l;
+    		scanf("%d%d%d", &u, &v, &l);
+    		if (u == v)
+    			continue;
+    		a[u].push_back(CNode(v, l, u, v));
+    		sum += l;
+    	}
+    	sum++;
+    	for (int i = 0; i < n; ++i)
+    		a[n].push_back(CNode(i, sum, n, i));
+    	n++;
+    	long long ret = ZhuLiu(n - 1);
+    	if (-1 == ret || ret >= 2*sum) {
+    		printf("impossible\n\n");
+    	} else {
+    		int root = -1;
+    		for(int i = 0; i<n-1; ++i)
+    			if(pre[i] == n-1){
+    				root = i;
+    			}
+    		printf("%.0f %d\n\n", (double)(ret - sum), root);
+    	}
+    	return true;
+    }
+    
+    int main(int argc, char** argv)
+    {
+    //	freopen("in.txt", "r", stdin);
+    	while (Solve());
+    	return 0;
+    }

@@ -1,0 +1,208 @@
+---
+author: dashashi
+comments: true
+date: 2011-09-29 16:59:06+00:00
+layout: post
+slug: '%e6%9c%80%e5%b0%8f%e6%a0%91%e5%bd%a2%e5%9b%be%ef%bc%88%e4%b8%89%ef%bc%89%ef%bc%8chdu4009_2'
+title: 最小树形图（三），HDU4009_2
+wordpress_id: 1400
+categories:
+- 未分类
+---
+
+前一篇提到只需要记录入边就能够实现最小树形图，于是写了一下……
+
+写的其实挺顺利的……不过在算距离的时候把两个点搞反了- -于是悲剧了半天……
+
+整体来说代码还是不错，速度也快了点，测试了一下程序跑了1406ms，但是只处理输入，然后直接输出0的程序也跑了1312毫秒，也就是说程序实际上跑了100ms不到的时间，很不错- -||
+
+贴代码……<!-- more -->
+
+
+    //最小树形图邻接表
+    //只记录入边，不记录出边
+    #include <cstdio>
+    #include <cstring>
+    #include <vector>
+    //include <iostream>
+
+    using namespace std;
+
+    struct CNode
+    {
+    	int u;
+    	double l;
+    	CNode(int u, double l){
+    		this->u = u;
+    		this->l = l;
+    	}
+    };
+
+    const int MAXN = 1010;
+    const double inf = 1e20;
+
+    int n, X, Y, Z, m;
+    vector<CNode> a[MAXN*2];
+    int pre[MAXN*2], flag[MAXN*2], merge[MAXN*2];
+    double len[MAXN*2];
+    double tmpList[MAXN*2];
+
+
+    //若 找到环，返回环第一个点的编号，不然返回-1
+    int dfs(int u)
+    {
+    	if(u < 0 || flag[u] < 0)
+    		return -1;
+    	if(flag[u] > 0)
+    		return u;
+    	flag[u] = 1;
+    	int ret = dfs(pre[u]);
+    	flag[u] = -1;
+    	return ret;
+    }
+
+    double ZhuLiu(int root)
+    {
+    	//判断部分省略，因为必定有解
+    	double ans = 0;
+    	int nn = n;
+    	for(int i = 0; i<2*n; ++i){
+    		merge[i] = i;
+    		pre[i] = -1;
+    		len[i] = inf;
+    	}
+
+    	for (int v = 0; v < nn; ++v) {
+    		for (vector<CNode>::iterator i = a[v].begin(); i != a[v].end(); ++i) {
+    			if (pre[v] == -1 || len[v] > i->l) {
+    				pre[v] = i->u;
+    				len[v] = i->l;
+    			}
+    		}
+    	}
+    	while(true){
+    		pre[root] = -1;
+    		//找环
+    		bool NoLoop = true;
+    		for(int i = 0; i<nn; ++i)
+    			flag[i] = 0;
+    		for(int i = 0; i<nn; ++i){
+    			if(merge[i] != i)
+    				continue;
+    			int t = dfs(i);
+    			if(t < 0)
+    				continue;
+    			NoLoop = false;
+
+    			int now = t;
+    			do{
+    				merge[now] = nn;
+    				ans += len[now];
+    				now = pre[now];
+    			}while(now != t);
+    			for(int i = 0; i<nn; ++i){
+    				tmpList[i] = inf;
+    			}
+
+    			a[nn].clear();
+    			pre[nn] = -1;
+    			len[nn] = inf;
+
+    			do{
+    				for(vector<CNode>::iterator i = a[now].begin(); i!=a[now].end(); ++i){
+    					int u = i->u;
+    					double l = i->l;
+    					while(merge[u] != u)
+    						u = merge[u];
+    					if(merge[u] == nn)
+    						continue;
+    					l -= len[now];
+    					if(len[nn] > l){
+    						len[nn] = l;
+    						pre[nn] = u;
+    					}
+    					if(tmpList[u] > l)
+    						tmpList[u] = l;
+    				}
+    				now = pre[now];
+    			}while(now != t);
+
+    			for(int i = 0; i<nn; ++i){
+    				if(tmpList[i] < inf)
+    					a[nn].push_back(CNode(i, tmpList[i]));
+    			}
+    			for(int i = 0; i<nn; ++i){
+    				if(i != root && merge[pre[i]] == nn)
+    					pre[i] = nn;
+    			}
+    //			for(int i = 0; i<nn; ++i){
+    //				if(i == root)
+    //					continue;
+    //				while(merge[pre[i]] != pre[i])
+    //					pre[i] = merge[pre[i]];
+    //			}
+    			nn++;
+    		}
+    		if(NoLoop){
+    			double aa = ans;
+    			for(int i = 0; i<nn; ++i)
+    				if(merge[i] == i && i != root)
+    					ans += len[i];
+    //			for(int i = 0;i<nn; ++i)
+    //				if(merge[i] == i)
+    //					printf("%d->%d %.0f\n", pre[i], i, len[i]);
+    //			printf("sum is %.0f\n", ans-aa);
+    			return ans;
+    		}
+    	}
+    }
+
+    int abs(int k)
+    {
+    	return k<0?-k:k;
+    }
+
+    int x[MAXN], y[MAXN], z[MAXN];
+    int GetDis(int u, int v)
+    {
+    	if(z[u] >= z[v])
+    		return (abs(x[u]-x[v])+abs(y[u]-y[v])+abs(z[u]-z[v]))*Y;
+    	else
+    		return (abs(x[u]-x[v])+abs(y[u]-y[v])+abs(z[u]-z[v]))*Y+Z;
+    }
+
+    bool Solve()
+    {
+    	scanf("%d%d%d%d", &n, &X, &Y, &Z);
+    	if(n == 0)
+    		return false;
+    	for(int i = 0; i<=n; ++i){
+    		a[i].clear();
+    	}
+    	for(int i = 1; i<=n; ++i)
+    		scanf("%d%d%d", &x[i], &y[i], &z[i]);
+    	for(int i = 1; i<=n; ++i){
+    		int k;
+    		scanf("%d", &k);
+    		int v;
+    		for(int j = 0; j<k; ++j){
+    			scanf("%d", &v);
+    			if(i == v)
+    				continue;
+    			a[v].push_back(CNode(i, GetDis(i, v)));
+    		}
+    	}
+    	for(int i = 1; i<=n; ++i){
+    		a[i].push_back(CNode(0, X*z[i]));
+    	}
+    	n++;
+    	printf("%.0f\n", ZhuLiu(0));
+    	return true;
+    }
+
+    int main(int argc, char** argv)
+    {
+    //	freopen("in.txt", "r", stdin);
+    	while(Solve());
+    	return 0;
+    }

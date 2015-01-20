@@ -1,0 +1,1410 @@
+---
+author: dashashi
+comments: true
+date: 2011-04-15 19:51:31+00:00
+layout: post
+slug: '1161'
+title: '[转]ATL的GUI程序设计'
+wordpress_id: 1161
+categories:
+- 写程序
+tags:
+- atl
+- C++
+- gui
+- wtl
+- 入门
+---
+
+写GUI神马的……感觉用MFC这种带类库的东西很不爽，前段时间发现WTL很适合我- -|不过这玩意儿还有点复杂- -|于是到处搜索教程，忽然搜索到这一系列文章，感觉写得很不错，虽然讲的是ATL，但是感觉这玩意儿看会了对学WTL好处颇多- -|转过来- -||
+
+**前言**
+
+也许，你是一个顽固的SDK簇拥者；
+
+也许，你对MFC抱着无比排斥的态度，甚至像我一样对它几乎一无所知；
+
+也许，你符合上面两条，而且正在寻求着一种出路；
+
+也许，你找到了一条出路——WTL，但是仍然为它的技术支持、它的上下兼容性感到担忧；
+
+也许，你还有着更多的也许；
+
+也许，这时候你看到了李马的这篇文章。
+
+世界上的故事，往往就是由各种“也许”交织而成的。<!-- more -->
+
+**我的转型**
+
+历史告诉我，在向别人推荐一样东西的时候，首先应该告诉别人你从中获益了多少，如是才能够使这一切更加具有说服力。比如我告诉你，我自从用了ATL 之后，腰不酸了、腿不疼了、走路也有劲儿了，那么你没准儿就会对ATL产生些许的好感。是的，在《前言》的这一节里，我将以我自身的Win32  GUI程序设计经历来向你不遗余力地推荐ATL——因为我的这一系列连载就是以它为主题的。
+
+2000年，我开始用Visual Basic学写Win32下（严格地说，当时的Windows  95并不能算是纯粹的Win32系统，它只是一个16/32位Windows的杂种）的程序。到了2001年，我开始厌倦它的运行库与运行效率，于是转投 了Delphi。也许是Borland的粉丝不好做，也许是我厌倦了PASCAL的严谨，又也许是那种“真正的程序员用VC”的幼稚思想在作怪——总之， 我又投向了VC。
+
+一方面是我忒抠门儿，不舍得花钱买好书；另一方面，中国的MFC书籍琳琅满目鱼龙混杂而使我无法提起学习的兴致——反正不知道什么时候开始，我就开 始强烈抵触MFC这个本无过错的Framework，而仅仅凭着杂志报纸上寥寥的几篇SDK文章和全英文的MSDN  6.0开始了我艰难的学习长征。所幸，这一路上虽然磕磕绊绊，但最终我还是到达了属于我的陕北。如果您于此期间曾经在网上或其它媒体上看到过我的 Win32技术文章，就应该会发现这其中我极少涉猎MFC的任何内容——我不否认我对它存在着狭隘的偏见，虽然我在2005年完成的毕业设计是用MFC编 写的。
+
+SDK终究不是一个让人舒适的归宿，我想SDK的粉丝们都应该有着深深的体会。哪怕是你的代码增加到1000行，你都会觉得维护这些东西的难度非常 之大——臃肿、堆砌、全局、耦合、复用性差——有太多丑陋的词语都可以用在这上面。是的，我的确说过我不喜欢MFC，但是我也同样不能否认用MFC编写的 程序结构清楚、分流明晰——当然，如果你不是深入到MFC内部去看的话。举个例子来说，我所编写的进程查看器July的2.11版本就是用SDK编写的 （这个版本是开源的），才1000行出头的代码就已经使得我难以驾驭它们了，以致于后来我不止一次地想重写之——我想过用MFC，甚至Delphi的 VCL。不过，运行库的限制和庞大的EXE体积还是使我放弃了这些想法。
+
+如果说MFC和VCL是生长在深宫名门的大家闺秀，那么WTL就可以算是一位浪迹天涯的绝色歌女。我在2004年的时候，曾与它不经意地邂逅。精良 的设计、轻巧的EXE、无与伦比的效率——如果不是它的兼容性存在问题的话（如果不修改的话，WTL  7.1连它自己附带的某几个sample都无法通过编译），我几乎就要拜倒在它的石榴裙下了。
+
+于是我继续迷茫，这种迷茫一直持续到了2005年我毕业之后。2005年8月的时候，为了研究不借助MFC调用ActiveX控件的技术，我接触了 WTL的发端——为开发COM组件而设计的ATL。时至今日我似乎已经无法回忆起当时的景况，只记得一个月之后，用ATL重写的July  v2.20就诞生了。
+
+比起大家闺秀和绝色歌女，ATL则更像是一位温柔贤惠的朴实女子。
+
+**对症下药**
+
+说归说，ATL终究不是万灵之药。它是否适合你，且看你是否已经存在以下病症（当然，我也为你列出了其它可选药物）：
+
+
+
+	
+  * 看重程序独立性，不喜欢程序运行库。显然，.net和Visual Basic都不适合你。除ATL外，你还可以选择VCL、MFC（静态链接），当然还有WTL。
+
+	
+  * 看重程序效率。Visual Basic绝对不适合你。由于VCL与MFC内部会为窗口控件维护对象链，所以可能也不适合你。在这一方面，ATL和WTL会是不错的选择。
+
+	
+  * 看重EXE的大小。没的说，VCL和静态链接的MFC不能列入你的选择，ATL和WTL仍是最佳选择。当然，如果你不计较Windows自己捆绑的MFC运行库的话，MFC动态链接也可以。
+
+	
+  * 你不得不在没有MFC的Windows环境下编写代码。有这样的环境吗？也许你要问。是的，Smartphone 2003正是这样一个环境。ATL是你最佳的选择，当然你还可以选择.net Compact Framework。
+
+
+此外，你需要做好准备迎接以下这些使用了ATL以后可能带来的并发症：
+
+	
+  * 向导支持较少。可以说，VC的IDE就是完全为MFC程序设计准备的。它为ATL的支持甚少，似乎只有几个窗口消息处理器可以用。所以，有很多的消息映射可能需要你自己手工完成。
+
+	
+  * 技术支持有限。毕竟ATL是为COM组件开发准备的，所以关于用ATL进行GUI开发的资料非常少，除了MSDN上的说明和网上寥寥的几篇文章之外，似乎就很难找到了。
+
+
+最后，我为你列出ATL较之WTL更优秀的几点：
+
+	
+  * 代码兼容性强。比如VC6.0写出的代码在大多数情况下（我暂未遇到少数情况）都可以不经修改地在VS2003下编译运行。
+
+	
+  * 消息分流简单。我是前说过，VC对ATL的向导支持是很有限的。这样一来，WTL丰富的消息分流反而成了累赘。如果你用WTL写过程序，相信你会有相同的感觉——手工编写那批多种多样消息处理函数并不是一件轻松的事情。
+
+
+当然，我本人对WTL并没有偏见，但WTL的不为官方所支持也是它自身不争的一个事实。相信还有很多人对WTL的官方化望眼欲穿，然而他们还是迟迟 不能如愿。如果WTL真有那么一天（我也认为肯定会有那么一天），关于代码兼容性、向导支持、技术支持的这些问题都将不会是问题。
+
+**关于本系列连载**
+
+《ATL的GUI程序设计》这一系列的文章是李马为ATL/WTL之间的矛盾而做出的一个折中，也是李马在2006年为大家献上的一份礼物，希望大家能够喜欢，也希望它们能够成为大家迈入WTL之门的引领者。
+
+阅读本系列文章有两个先决条件：第一，你需要了解C++的模板技术，因为ATL的技术基础就是建构于模板之上的；第二，你需要了解Win32  SDK程序设计，这方面的经典教材是Charles Petzold的《Programming  Windows》（中译《Windows程序设计》），有关这方面的基础知识我在本系列文章中不再进行任何解释。
+
+本系列文章将会介绍如何使用ATL进行Win32的GUI程序设计方法，包括ATL的GUI基础使用方法、高级主题以及对ATL的扩展。此外，本系 列文章还会对ATL/WTL的某些关键实现技术进行解说，这些内容的理解与否并不影响使用ATL进行GUI程序设计，你可以根据个人情况来选择阅读。
+
+本系列文章中所有附带的源代码都是在Visual C++ 6.0 sp4和Visual Studio 2003.net上编译通过的，但主要环境仍然基于VC6.0之上，VS2003则只供验证之用。
+
+就这样了！我谨用一句呼应开头的话来结束这段稍嫌冗长的开场白：
+
+——也许，认识ATL之后，以前的“也许”将不再是“也许”……
+
+**第一章 不能免俗的“Hello, World!”**
+
+在这一章里，就像所有的入门级教程一样，我也将不能免俗地以一个“Hello,  World!”程序开始我的教程。然后，我将逐步深入，向你介绍这个ATL版本程序中所有必要的信息。此外，我还将介绍一些Win32中你可能不知道的东 西，包括WinMain的_t兼容以及如何在MessageBox中加入自己的图标等等。
+
+**接近，接近，再接近……**
+
+可以说，所有“Hello, World!”程序的内容不外乎都是以十分有限的几行代码向当前的目标屏幕环境上输出一个字符串“Hello, World!”。这个程序通常具有以下几个特点：
+
+
+
+	
+  1. 排除印刷错误的可能性，几乎所有的初学者都可以照葫芦画瓢地独立书写、编译并运行这个程序。
+
+	
+  2. 这个程序可以体现出当前语言环境的典型配置方式。
+
+	
+  3. 这个程序中具有当前语言特定的程序入口点。
+
+	
+  4. 这个程序中含有一条当前环境典型的输出语句（通常也是最简单、最常用的），由这条语句来输出“Hello, World!”字符串。
+
+	
+  5. 从这个程序可以很清楚的了解当前语言环境下程序运行的典型流程。
+
+	
+  6. 这个程序可能还会表现当前语言的一些其它特点。
+
+
+那么，首先让我以最简单的C语言版“Hello, World!”开始吧：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`#include <stdio.h> 
+
+``int main()
+{
+printf( "Hello, World!\n" );
+return 0;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+虽然是不到10行的代码，但它仍然五脏俱全。现在，就由我将它和上述的特点对号入座吧。也就是说，这个程序能体现出C程序设计的以下特点：
+
+
+
+	
+  1. C语言的程序以main函数作为程序入口点。
+
+	
+  2. printf是C中用来输出字符串的代码。
+
+	
+  3. 函数是C语言程序的基本单位，它通常由返回值、函数名、参数列表、函数体、return组成。
+
+	
+  4. 调用函数的时候要include相应的头文件。
+
+	
+  5. \n是C语言中的转义字符，代表换行符。
+
+
+接下来，我们来看一看Win32版的“Hello, World!”：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`#include <windows.h> 
+
+``int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd )
+{
+MessageBox( NULL, TEXT("Hello, World!"), TEXT("Hello"), 0 );
+return 0;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+这个程序告诉你了以下几件事：
+
+
+
+	
+  1. 所有Win32下的C程序都需要包含windows.h头文件。
+
+	
+  2. Win32下的程序是以WinMain作为程序入口点的，而不是main。
+
+	
+  3. Win32下最常用输出信息的方法是MessageBox。
+
+	
+  4. WINAPI是Win32 API函数的调用约定，也就是__stdcall。
+
+	
+  5. HINSTANCE、LPSTR都是Win32自定义的数据类型，分别表示应用程序实例句柄和以空字符结尾的ANSI字符串指针。
+
+	
+  6. TEXT宏用于在源代码一级保证ANSI/Unicode字符串的兼容。
+
+
+如果你对以上的几个知识点仍然有些许迷茫，请参考Charles Petzold的《Programming Windows》（中译《Windows程序设计》）的第一章。这段代码就是几乎原封不动地搬过来的。不过，我在编写这段代码的时候，通常会这么写：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`#include <windows.h>
+#include <tchar.h> 
+
+``int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd )
+{
+MessageBox( NULL, _T("Hello, World!"), _T("Hello"), 0 );
+return 0;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+是的，有几个地方有些不一样，我对它们的解释是：
+
+
+
+	
+  1. tchar.h中包含了对C runtime library中ANSI/Unicode字符串的源代码级兼容。
+
+	
+  2. _tWinMain提供了对命令行参数lpCmdLine的ANSI/Unicode源码级兼容。
+
+	
+  3. _T宏亦包含在tchar.h之中，它的作用和TEXT宏一样，但它比TEXT宏更加短小，因此可以节省编码的时间。
+
+
+现在我可以告诉你，随着我们的步步接近，接下来ATL版的“Hello, World!”程序就要出现在我们的眼前了。那么，就让我们来看看这个犹抱琵琶半遮面的家伙吧。（请注意，虽然这是一个ATL版本的程序，但是你仍然需要建立一个Win32 Application的工程，而不是用ATL/COM Wizard。）
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`//////////////////////////////////////////////////////////////////////////
+// ATL的GUI程序设计配套源代码
+// 第一章 不能免俗的“Hello, World!”
+// 工程名称：HelloWorld
+// 作者：李马
+// http://www.titilima.cn
+////////////////////////////////////////////////////////////////////////// 
+
+#include <atlbase.h>
+CComModule _Module;
+
+``int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd )
+{
+_Module.Init( NULL, hInstance );
+MessageBox( NULL, _T("Hello, World!"), _T("Hello"), 0 );
+_Module.Term();
+return 0;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+也许有些陌生了，不过所幸它并无太多的变化——毕竟整个代码段就没有多长。好了，这一节的内容就到这里，希望李马的这种渐近的方法没让大家觉得一切来得太突然。大家可以喝口水先，然后做个深呼吸再，因为接下来我们就要开始接触真正的ATL程序了。
+
+**“不过如此”**
+
+说句题外话先。许是我太狂妄，又许是我太幼稚，总之我在上大学以来，越来越喜欢说“不过如此”这句话。譬如上了大学以后，没过俩月我就觉得大学“不 过如此”；学会喝酒之后，就又会觉得喝酒“不过如此”；到了北京以后，又觉得北京“不过如此”；参观了某著名软件公司之后，又觉得它“不过如此”……书归 正传话归正题，不知道你第一眼看过ATL版本的“Hello, World!”之后会不会同样有这样一种感觉？——自然，我希望是这样的。
+
+那么，在了解ATL之前，就让我们先来目测一下这个“Hello, World!”吧。也许，你会从上面的代码猜到以下内容：
+
+
+
+	
+  1. atlbase.h大概其应该是ATL程序需要包含的头文件。
+
+	
+  2. CComModule，从类名称看应该是一个模块类。_Module是这个模块类的实例。
+
+	
+  3. WinMain没变。
+
+	
+  4. CComModule::Init应该是对模块进行初始化，这个方法应该是在程序初始化的时候调用。
+
+	
+  5. CComModule::Term应该是对模块进行结束处理，这个方法应该是在程序结束之前调用。
+
+	
+  6. WinMain的最后仍然是以return结尾。
+
+
+好，是不是“不过如此”呢？没错！
+
+**大抵如此**
+
+到此为止，希望你的猜想能够让你对ATL的恐惧感（如果有的话）一扫而光。那么，现在李马来为你补充上几点：
+
+atlbase.h在用ATL进行GUI程序设计的时候，就如同SDK中的windows.h一样重要。对于GUI程序设计的部分，这个文件中主要有这么几个值得关注的地方：
+
+
+
+	
+  1. Win32程序设计必备的头文件，诸如windows.h、tchar.h等。
+
+	
+  2. CComModule的定义。对于GUI程序设计，我们可以将它简单地看作对HINSTANCE的一个封装。
+
+	
+  3. 一些简单的工具类。（请原谅我不能在这里提供给你它们具体的名字，因为ATL 3.0和ATL 7.0是不一样的。VC  6.0附带的是ATL  3.0，它的atlbase.h中主要提供了一些COM的智能指针和字符串，如CComPtr、CComBSTR等；而VS2003中的ATL  7.0中则附带了一些更有趣的类，比如CRegKey、CHandle等。）
+
+
+下面接着说CComModule。相信你可以从它的类名称中看出来，这个类主要用来管理COM的各种信息。如果你深入到ATL的源代码之中，你可能会为它的众多成员与方法感觉到迷惑。其实在进行GUI程序设计的时候，你只需要关心以下这些内容：
+
+	
+  1. HRESULT CComModule::Init( _ATL_OBJMAP_ENTRY* p, HINSTANCE h, const GUID* plibid = NULL );
+进行模块的初始化，第一个参数取NULL，第二个参数取应用程序的实例句柄，也就是WinMain中传入的hInstance。
+
+	
+  2. void CComModule::Term();
+进行模块的卸载，在程序结束时调用。
+
+	
+  3. HINSTANCE CComModule::GetModuleInstance();
+获取应用程序实例句柄CComModule::m_hInst。
+
+	
+  4. HINSTANCE CComModule::GetResourceInstance();
+获取资源模块句柄 CComModule::m_hInstResource，这个值在默认情况下是和CComModule::m_hInst一致的。如果你程序的所有资源 位于一个DLL之中，那么你可以在初始化应用程序中将CComModule::m_hInstResource成员赋值为这个DLL的模块句柄。
+
+
+接着说CComModule的实例_Module。可以说，这个全局变量贯穿于ATL整个框架的始终，无论你是使用它编写COM组件还是GUI程序。譬如，你可能不止一次地需要使用模块的实例句柄（LoadIcon、LoadCursor），那么你只需要这样调用：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`extern CComModule _Module;
+HICON hIcon = ::LoadIcon( _Module.GetResourceInstance(), MAKEINTRESOURCE( IDI_YOURICON ) );`
+</td>
+</tr>
+</tbody>
+</table>
+好了，那么现在我们可以充分展示一下这个模块类的具体使用了。在此，我仅仅将我先前的“Hello, World!”作了一番扩展，如下：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`//////////////////////////////////////////////////////////////////////////
+// ATL的GUI程序设计配套源代码
+// 第一章 不能免俗的“Hello, World!”
+// 工程名称：HelloWorldEx
+// 作者：李马
+// http://www.titilima.cn
+////////////////////////////////////////////////////////////////////////// 
+
+#include <atlbase.h>
+CComModule _Module;
+
+int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd )
+{
+_Module.Init( NULL, hInstance );
+_Module.m_hInstResource = LoadLibrary( _T("shell32.dll") );
+
+MSGBOXPARAMS mbp;
+ZeroMemory( &mbp, sizeof( mbp ) );
+mbp.cbSize       = sizeof( mbp );
+mbp.dwLanguageId = GetSystemDefaultLangID();
+mbp.dwStyle      = MB_USERICON;
+mbp.hInstance    = _Module.GetResourceInstance();
+mbp.lpszCaption  = _T("Hello");
+mbp.lpszIcon     = MAKEINTRESOURCE( 44 );
+mbp.lpszText     = _T("Hello, World!");
+MessageBoxIndirect( &mbp );
+
+``FreeLibrary( _Module.m_hInstResource );
+_Module.m_hInstResource = NULL;
+_Module.Term();
+return 0;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+这个程序运行起来是这个样子：
+
+![](http://www.titilima.cn/pics/atlgui01.gif)
+
+如你所见，在这里我使用了来自应用程序之外的资源，也就是对CComModule::GetModuleInstance进行了特殊处理。WTL就 是对CComModule这个类进行了继承处理而派生出了CAppModule类，使之成为了更适合应用程序使用的模块类。有兴趣的朋友可以参看WTL附 带的atlapp.h文件，我这里就不多说了。
+
+**“貌合神离”**
+
+字典上对这个词的解释是：“表面上很亲密而实际上怀有二心”。在此，我将它用在ATL 3.0与7.0上，用来表示它们俩“用法兼容而实现迥异”的既有事实。不过，对于GUI程序设计而言，你并不需要深入了解这方面的内容。因此我这里列举的，也只是与GUI有关的部分。
+
+
+
+	
+  * ATL 3.0之中，CComModule直接继承自_ATL_MODULE；而ATL 7.0之中，CComModule则经历了一串的继承链。
+
+	
+  * 相比之下，ATL 7.0中的CComModule更有COM的味道，譬如它的ModuleInstance、ResourceInstance都可以作为COM组件的property，使用get、put来处理。
+
+
+当然，ATL毕竟是一个为开发COM组件而构建的Framework，所以ATL 7.0中的atlbase.h之中还包含了更多有关COM开发的工具类。这些内容与本书无关，而且李马也自认现在尚无能力来解说这些内容，所以一并从略了就。
+
+**第二章 一个最简单窗口程序的转型**
+
+我知道，可能会有很多朋友对上一章的“Hello,  World!”ATL版不以为然，因为它并不能算是什么ATL程序——毕竟它只不过是有了个CComModule而已。不过不管怎样我还是要说，它几乎仍 然拥有了一个ATL GUI程序的所有组成部分：入口、初始化、程序体、卸载……
+
+“等等！”也许你会突然打断我，“——还有注册窗口类、消息循环呢？”
+
+当然，对于一个完整的GUI程序来讲，这也是必要的。
+
+**貌似废话**
+
+不清楚你是否已经为本章的内容做好了准备，因为下面我们就要动真格的了。不过考虑到本书的读者群中可能会存在着相当一部分了解MFC却对Win32   GUI的基本原理和流程不甚熟悉的朋友，所以李马特别为你们准备了这一节的内容。SDK的粉丝们可以跳过这一节，如果你们觉得李马讲的有些拖沓冗长的话。
+
+那么，我还是先以一个标准的Win32 SDK程序开始：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`//////////////////////////////////////////////////////////////////////////
+// ATL的GUI程序设计配套源代码
+// 第二章 一个最简单窗口程序的转型
+// 工程名称：HelloSDK
+// 作者：李马
+// http://www.titilima.cn
+////////////////////////////////////////////////////////////////////////// 
+
+#include <windows.h>
+#include <tchar.h>
+
+LRESULT CALLBACK HelloWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+switch ( uMsg )
+{
+case WM_DESTROY:
+{
+PostQuitMessage( 0 );
+}
+break;
+case WM_PAINT:
+{
+HDC hdc;
+PAINTSTRUCT ps;
+
+hdc = BeginPaint( hWnd, &ps );
+DrawText( hdc, _T("Hello, SDK!"), -1, &ps.rcPaint, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+EndPaint( hWnd, &ps );
+}
+break;
+default:
+return DefWindowProc( hWnd, uMsg, wParam, lParam );
+}
+return 0;
+}
+
+BOOL InitApplication( HINSTANCE hInstance )
+{
+WNDCLASS wc;
+wc.cbClsExtra    = 0;
+wc.cbWndExtra    = 0;
+wc.hbrBackground = (HBRUSH)GetStockObject( WHITE_BRUSH );
+wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+wc.hIcon         = LoadIcon( NULL, IDI_APPLICATION );
+wc.hInstance     = hInstance;
+wc.lpfnWndProc   = HelloWndProc;
+wc.lpszClassName = _T("HelloSDK");
+wc.lpszMenuName  = NULL;
+wc.style         = CS_HREDRAW | CS_VREDRAW;
+
+return RegisterClass( &wc );
+}
+
+int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd )
+{
+// 注册窗口类
+InitApplication( hInstance );
+
+// 创建窗口
+HWND hWnd = CreateWindow( _T("HelloSDK"), _T("Hello SDK"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL );
+ShowWindow( hWnd, nShowCmd );
+UpdateWindow( hWnd );
+
+// 消息循环
+MSG msg;
+while ( GetMessage( &msg, NULL, 0, 0 ) )
+{
+TranslateMessage( &msg );
+DispatchMessage( &msg );
+}
+
+``return msg.wParam;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+不知道你是否会觉得这段代码有些冗长？事实上，这个程序已经体现了Win32 GUI程序运行的所有流程（请注意，我并不会对这些代码进行详细的解释，因为我已经假设你已经了解了这些代码具体行为的必要细节。如果不是这样的话，请参考相关的书籍或者MSDN）：
+
+
+
+	
+  1. 注册窗口类的部分。在这个程序中，InitApplication函数完成了这一工作。窗口类的概念类似于OO（面向对象）中的类，所有 你在Windows中能看到的窗口都是某个特定窗口类的一份实例。但是，窗口类并非任何一种OOP语言中的类——它所包括的并不是通称的属性和方法（在 C++中称作成员变量和成员函数），而是属性和响应。这个区别可能会使你感到费解，我会在下一章中为你详细介绍——因为ATL中对窗口的封装类将这一点体 现得十分淋漓尽致。
+
+	
+  2. 创建窗口的部分。在通常的SDK代码里，这些代码被封装在一个名为InitInstance的函数中。这段代码所做的工作一般是创建窗口并将其显示出来。
+
+	
+  3. 消息循环。Windows是一个基于消息机制的操作系统，各个窗口之间的通信也主要是靠Windows消息来完成的。而程序中的消息循环也就是将本程序UI线程中的消息队列中提取各种消息，进行处理（如果有必要的话）之后分发给各个消息的属主窗口（或者说是目标窗口）。
+
+
+在这里需要指出的是，HelloWndProc是我们自己定义的一个函数，我们需要用它来控制我们对特定窗口消息的特定响应。我们只需要在注册窗口 类之前，将这个函数的地址（也就是函数名）赋值给WNDCLASS::lpfnWndProc成员就可以了。这个函数我们自己不需要进行调用，它的调用是 当我们的窗口收到窗口消息后，由Windows完成的。在这个回调函数中，我们的处理是这样的：
+
+	
+  * WM_DESTROY。在窗口被销毁的时候，窗口会收到此消息。在这里，我们会调用PostQuitMessage，用以向当前UI线程 的消息队列之中发送一条WM_QUIT消息，GetMessage在收到这条消息后，会返回FALSE，也就结束了消息循环，WinMain也就结束了。
+
+	
+  * WM_PAINT。在窗口需要绘制的时候，窗口会收到此消息。在这里我们只是简单的在窗口的中间绘制了一行文字“Hello, SDK!”。
+
+	
+  * 其它消息。这些消息都是我们不关心的，所以我们将其交由系统默认的窗口过程DefWindowProc来处理。
+
+
+这段代码貌似冗长，但实际上还是很有条理的，你可以根据它以及我以上的解说来对照这个程序的ATL版本。
+
+**ATL等同品**
+
+在写作这本书的时候，我总是希望我每次都能够能使用让你不太陌生的代码来循序渐进地引导你。考虑再三，对于“Hello, ATL!”的这个程序，我决定先把它的WinMain展现给你：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd )
+{
+_Module.Init( NULL, hInstance ); 
+
+// 创建窗口
+CHelloATLWnd wnd;
+wnd.Create( NULL, CHelloATLWnd::rcDefault, _T("Hello ATL") );
+wnd.ShowWindow( nShowCmd );
+wnd.UpdateWindow();
+
+// 消息循环
+MSG msg;
+while ( GetMessage( &msg, NULL, 0, 0 ) )
+{
+TranslateMessage( &msg );
+DispatchMessage( &msg );
+}
+
+``_Module.Term();
+return msg.wParam;
+}`
+</td>
+</tr>
+</tbody>
+</table>
+OK，上一章介绍过的_Module又出现在你的眼前了——不过还是没有什么特别的变化，仍然是那熟悉的Init和Term。而且，正如“山哟还是 那座山”一样，消息循环哟也仍然是那个消息循环。当然，你肯定也发现了那寥寥的变化：CHelloATLWnd是什么？在我将它的代码展现给你之前，你可 能会做出这样的猜想：
+
+
+
+	
+  * 这是一个C++类，它对Win32窗口类进行了封装。
+
+	
+  * 这个类封装了大多数窗口操作的API函数，诸如CreateWindow、ShowWindow、UpdateWindow。
+
+	
+  * 窗口类的注册可能也是在这个C++类中完成的。
+
+
+好，打住，这就够了。让我们来撩开CHelloATLWnd那貌似神秘的面纱吧，赶紧着。
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`class CHelloATLWnd : public CWindowImpl< CHelloATLWnd, CWindow, CWinTraits< WS_OVERLAPPEDWINDOW > >
+{
+public:
+CHelloATLWnd()
+{
+CWndClassInfo& wci     = GetWndClassInfo();
+wci.m_bSystemCursor    = TRUE;
+wci.m_lpszCursorID     = IDC_ARROW;
+wci.m_wc.hbrBackground = (HBRUSH)GetStockObject( WHITE_BRUSH );
+wci.m_wc.hIcon         = LoadIcon( NULL, IDI_APPLICATION );
+}
+public:
+DECLARE_WND_CLASS( _T("HelloATL") )
+public:
+BEGIN_MSG_MAP( CHelloATLWnd )
+MESSAGE_HANDLER( WM_DESTROY, OnDestroy )
+MESSAGE_HANDLER( WM_PAINT, OnPaint )
+END_MSG_MAP()
+public:
+LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& hHandled )
+{
+::PostQuitMessage( 0 );
+return 0;
+}
+LRESULT OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& hHandled )
+{
+HDC hdc;
+PAINTSTRUCT ps; 
+
+``hdc = BeginPaint( &ps );
+DrawText( hdc, _T("Hello, ATL!"), -1, &ps.rcPaint, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+EndPaint( &ps );
+return 0;
+}
+};`
+</td>
+</tr>
+</tbody>
+</table>
+**猜想，还是猜想！**
+
+请允许我在本章中不为你解释这个类的任何具体细节，取而代之的是继续的猜想。因为，这个类中需要解释的东西太多了，以至于我必须为它单独开辟一章。
+
+
+
+	
+  * 窗口类的注册是由这个C++类的构造函数与DECLARE_WND_CLASS宏一起完成的。
+
+	
+  * 对于BEGIN_MSG_MAP与END_MSG_MAP这一部分，想必使用过MFC的朋友们应该更容易理解。是的，这一对宏可以算作ATL的消息映射，在其中由MESSAGE_HANDLER作为消息分流器，将各种窗口消息分配给各个处理函数。
+
+	
+  * 创建窗口时指定的样式貌似和模板参数CWinTraits有关。
+
+
+当然，除了这些猜想之外，你可能还会同时存在以下疑问：
+
+	
+  * CWindowImpl、CWindow、CWinTraits究竟是什么？
+
+	
+  * 窗口类是在何时注册的？
+
+	
+  * 消息分流器是如何实现的？
+
+
+也许你还会有更多的疑问，那么就让我一并将它们留到下一章再解决吧。如果你实在等不及的话，atlwin.h的代码也会告诉你一切的。
+
+**补叙CComModule**
+
+由于这本书主要针对的是ATL 3.0/Visual C++ 6.0，所以我疏忽了对CComModule的研究。在此感谢老李老刀兄提出的一点，就是CComModule在ATL 7.0中已经不建议使用了。于是我将MSDN中的相关章节摘抄下来，权作借花献佛之用。
+
+
+
+**CComModule 替换类**
+
+ATL 的早期版本使用 CComModule。在 ATL 7.0 中，CComModule 功能被若干个类所取代：
+
+
+
+	
+  * CAtlBaseModule 包含大多数使用 ATL 的应用程序所需的信息。包含模块和资源实例的 HINSTANCE。
+
+	
+  * CAtlComModule 包含 ATL 中的 COM 类所需的信息。
+
+	
+  * CAtlWinModule 包含 ATL 中的窗口化类所需的信息。
+
+	
+  * CAtlDebugInterfacesModule 包含接口调试支持。
+
+	
+  * CAtlModule 下列 CAtlModule 派生的类被自定义为包含特定应用程序类型中所需的信息。这些类中的大部分成员都可以被重写：
+CAtlDllModuleT 在 DLL 应用程序中使用。为标准导出提供代码。
+CAtlExeModuleT 在 EXE 应用程序中使用。提供 EXE 中所需的代码。
+CAtlServiceModuleT 为创建 Windows NT 和 Windows 2000 服务提供支持。
+CComModule 仍然可用以便向后兼容。
+
+
+**分布 CComModule 功能的原因**
+
+由于以下原因，CComModule 的功能分布到了几个新类中：
+
+
+
+	
+  * 使 CComModule 中的功能呈粒状分割。
+对 COM、窗口化、接口调试和应用程序特定的（DLL 或 EXE）功能的支持现在在不同的类中。
+
+	
+  * 自动为这些模块的每一个声明全局实例。
+所需模块类的全局实例链接到项目中。
+
+	
+  * 消除了调用 Init 和 Term 方法的必要性。
+Init 和 Term 方法已移动到模块类的构造函数和析构函数中；不再需要调用 Init 和 Term。
+
+
+
+
+不过，出于代码的兼容性以及WTL的内容考虑，本系列后续文章仍然将使用ATL 3.0中的CComModule。
+
+**第三章 ATL的窗口类**
+
+CWindowImpl、CWindow、CWinTraits，ATL窗口类的奥秘尽在此三者之中。在本章里，李马将为你详细解说它们的使用方 法。另外，本章的内容也可以算是本书的核心部分——如果你要进行ATL的GUI程序设计的话，就必须将ATL的窗口类设计理念了然于心。
+
+**窗口的组成**
+
+把ATL的窗口类撇开不谈先。我在上一章中提到：窗口类并非任何一种OOP语言中的类——它所包括的并不是通称的属性和方法（在C++中称作成员变量和成员函数），而是属性和响应。现在是解释这句话的时候了。
+
+所谓窗口的属性，无非是窗口的样式（style）、背景画刷（brush）、图标（icon）、光标（cursor）……等元素。你可以从 WNDCLASS及WNDCLASSEX中找到它们。需要特别指出的是，窗口的样式事实上包括窗口类的样式和窗口实例的样式，窗口类的样式在注册窗口类之 前经由WNDCLASS::style或WNDCLASSEX::style指定，而窗口实例的样式则是在创建窗口 （CreateWindow/CreateWindowEx）的时候指定的。
+
+对于窗口的响应，即是指窗口收到某消息后的处理。（在VB、Delphi等RAD环境中，处理窗口的响应亦称作窗口的事件处理。）对于SDK而言， 为窗口提供响应也就是为窗口类提供一个回调函数，在回调函数中对我们感兴趣的窗口消息进行特殊处理，譬如上一章中针对WM_DESTROY和 WM_PAINT的处理。
+
+另外，我们在进行Win32程序设计的时候，往往还需要对窗口进行操作，譬如ShowWindow和UpdateWindow——姑且让我称之为“方法”。
+
+属性、方法、事件，这回这哥仨算齐了。我们在对窗口进行C++封装时，需要考虑的也正是这三者。自然，依据OO的理念，我们可以很简单地将句柄作为 成员变量，将方法作为成员函数，然后将事件经由某种特定的消息分流手段移交给各个成员函数进行响应处理，加之对不同种类的窗口使用继承进行区分——这就是 MFC的封装做法。大家如果有兴趣的话，可以打开MFC的afxwin.h看一看CWnd类的代码。
+
+**ATL窗口类的活版封装**
+
+MFC的CWnd是一个冗长得有些过分的类。究其原因，窗口类的封装理念决定了窗口类的消息分流，而消息分流则决定了类的代码篇幅。如果你已经打开 了afxwin.h文件，就可以发现CWnd花了很大的篇幅在“On”开头的事件响应函数上。其实在我们进行Win32程序设计的时候，真正感兴趣的事件 没有几个，所以说“万能”势必造就冗长。
+
+另外，考虑MFC的诞生年代，所以对于窗口的封装只是采用了C++的低端特性——例如薄层的封装和单向继承。（题外话：而且MFC中还存在着一些诸 如CString、CArray、CList之类的工具，盖因其时STL还未标准化之故。）随着MFC的发展，任凭它做出任何优化，也无法避免当初架构理 念带来的效率阴影和偏差。
+
+ATL的诞生年代晚于MFC，使之能够有机会使用C++的高端特性，也就是模板和多重继承。于是，它使用了一种全新的封装理念：将属性、方法、事件 分别独立出来，然后利用模板和多重继承的特性将这三者根据需要而组合在一起——打个比方来说，如果MFC的窗口封装是雕版印刷术，那么ATL的窗口封装就 是活版印刷术。以上一章的CHelloATLWnd类为例，它的继承层次如下图：
+
+![](http://www.titilima.cn/pics/atlgui02.gif)
+
+这是一个稍显冗长的继承链，不过我并不打算对它进行详细的解说。在此，我只请你看这个继承层次的最底层和最上层。从最底层来 看，CHelloATLWnd继承自CWindowImpl，CWindowImpl有三个模板参数：T、TBase、TWinTraits。再看最上 层，CWindowImplRoot继承自TBase和CMessageMap。T参数即是你所继承下来的子类名，通常用于编译期的虚函数机制（后边我会 对这一机制进行介绍）；TBase参数为对窗口方法和句柄的封装；TWinTraits是窗口样式的类封装；CMessageMap是对窗口事件响应的封 装。
+
+下面，就让李马来逐一将这些组成部分介绍给你吧。
+
+**窗口样式的封装**
+
+窗口样式通常由CWinTraits类封装，这个类很简单，如下：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`/////////////////////////////////////////////////////////////////////////////
+// CWinTraits - Defines various default values for a window 
+
+``template <DWORD t_dwStyle = 0, DWORD t_dwExStyle = 0>
+class CWinTraits
+{
+public:
+static DWORD GetWndStyle(DWORD dwStyle)
+{
+return dwStyle == 0 ? t_dwStyle : dwStyle;
+}
+static DWORD GetWndExStyle(DWORD dwExStyle)
+{
+return dwExStyle == 0 ? t_dwExStyle : dwExStyle;
+}
+};`
+</td>
+</tr>
+</tbody>
+</table>
+这个类有两个模板参数：dwStyle和dwExStyle，也就是CreateWindowEx中要用到的那两个样式参数。在 CHelloATLWnd::Create（其实也就是CWindowImpl::Create）调用的时候，窗口的样式就是由 CWinTraits::GetWndStyle/CWinTraits::GetWndExStyle决定的。
+
+另外，ATL还为常用的窗口样式提供了几个typedef，如CControlWinTraits、CFrameWinTraits、 CMDIChildWinTraits。在你需要它们这些特定样式或者需要对它们进行扩展的时候，可以直接进行使用或者使用CWinTraitsOR类来 进行进一步的样式组合，这里我就不多介绍了。
+
+**窗口方法的封装**
+
+说白了，窗口方法的封装其实就是把窗口句柄和常用的窗口操作API函数（也就是那些第一个参数为HWND类型的API函数）进行一层薄薄的绑定。这 样做的好处有二：第一，使代码更有逻辑性，符合OO的设计理念；第二，在对SendMessage进行封装后，可以增加对消息参数的类型检查。
+
+CWindow类的内容我就不列出了，因为它同样十分冗长，大家可以参看atlwin.h的相关内容。在这里我仅对其中的几个地方进行解说：
+
+
+
+	
+  * 它只有一个非static的成员变量，也就是窗口的句柄m_hWnd。这样做的好处是使得CWindow类的对象占用最小的资源，同时给 程序员提供最大的自由度。与MFC的CWnd类相比，CWindow的优点体现得尤为明显。CWnd之中还存在着一些MFC  Framework要用到的东西，比如RTTI信息等等。此外，MFC内部还会为每个窗口句柄维护一个相对应的CWnd对象，形成一个对象链，这样程序员 可以通过GetDlgItem获取CWnd类的指针，但是这同时也为系统增加了很多额外的负担。
+
+	
+  * CWindow提供了对operator=操作符的重载，这样程序员可以直接将一个HWND赋给一个CWindow对象。
+
+	
+  * CWindow::Attach/CWindow::Detach提供了CWindow对象与HWND的绑定/解除绑定功能。
+
+	
+  * CWindow提供了对operator HWND类型转换操作符的重载，这样在用到HWND类型变量的时候，可以直接使用CWindow对象来代替。
+
+
+有了CWindow类之后，如果你需要对窗口进行更多的操作，就可以对其进行继承，例如CButton、CListBox、CEdit等等。这样一来，代码的复用性就大大提高了。
+
+**窗口事件响应的封装**
+
+窗口事件响应的封装，也就是这个类如何对窗口消息进行分流。你应该还记得，CHelloATLWnd类是通过BEGIN_MSG_MAP、 END_MSG_MAP和MESSAGE_HANDLER宏实现的。如果你参阅了atlwin.h中它们的定义，你就会发现其实它们会组成一个 ProcessWindowMessage函数。是的，CMessageMap就是由这个函数组成的：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`/////////////////////////////////////////////////////////////////////////////
+// CMessageMap - abstract class that provides an interface for message maps 
+
+``class ATL_NO_VTABLE CMessageMap
+{
+public:
+virtual BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+LRESULT& lResult, DWORD dwMsgMapID) = 0;
+};`
+</td>
+</tr>
+</tbody>
+</table>
+CWindowImplRoot派生自CMessageMap，所以CWindowImplRoot及至CWindowImpl都需要实现 ProcessWindowMessage以完成窗口消息的分流。大家可以看到，这个函数的前四个参数是在SDK程序设计中窗口回调的原班人马，在此不多 介绍。lResult用来接收各消息处理函数的返回值，然后返回给最初的WndProc作为返回值。dwMsgMapID是一个神秘参数，且待李马留到以 后再进行讲解。
+
+“等等！”也许你会突然打断我，“——ATL是如何将WndProc封装到类的成员函数中的？”的确，在编译器的处理下，C++类中非static 成员函数的参数尾部会被加入一个隐藏的this指针，这就使得它实际与回调函数的规格不合，所以非static成员函数是不能作为Win32的回调函数 的。
+
+先看MFC是如何做的吧。它采用一张庞大的消息映射表避开了这个敏感的地方，对此感兴趣的朋友们可参见JJHou先生的《深入浅出MFC》。也正因 此，CWnd不得不为大部分消息各实现一个消息处理函数。还好这些消息处理函数不是虚函数，否则CWnd会维护多么庞大的一张虚函数表！
+
+而ATL的奇妙之处也正是在此。它采用了thunk机制，即是在执行真正的WndProc回调之前刷改了内存中的机器码，将HWND参数用本窗口类 的this指针替换了，然后在执行真正的代码之前再将这个指针转换回来。这样，就将this指针的矛盾巧妙化解了。由于本书讲解的是关于如何使用ATL进 行GUI程序设计方面的内容，所以李马不在此进行过多探讨了就，感兴趣的朋友们可以自己研究atlwin.h中CWindowImplBaseT的代码， 或者参考Zeeshan Amjad先生的[《ATL Under the Hook Part 5》](http://www.codeproject.com/atl/atl_underthehood_5.asp)一文。
+
+在thunk机制的帮助下，ATL的窗口类就可以直接将不感兴趣的消息交由DefWindowProc进行处理，而不用像MFC一样实现那么多消息 处理函数。对于我们感兴趣的消息，可以使用ATL中的BEGIN_MSG_MAP/END_MSG_MAP宏来在窗口类的成员函数 ProcessWindowMessage中完成。此外对于消息的分流，除了MESSAGE_HANDLER宏，我们还可以使用其它的几个宏进行各种消息 （命令消息、普通控件通知消息、公共控件通知消息）的分流，我将在后边专门的一章中对ATL的CMessageMap的使用方法来进行讲解。
+
+**组合**
+
+葫芦兄弟单打独斗都不是蛇精的对手，所以葫芦山神就会派仙鹤携带七色彩莲找到他们，最后七个葫芦娃合体成为威力无比的葫芦小金刚，消灭了妖精，人世间重获太平……
+
+这自然是一个非常老套的故事，但想必如我一样的80s生人看到后仍然会感慨不已。在那个少儿的精神食粮异常匮乏的年代，这部有些程式化脸谱化的动画片告诉了我们一个简单的道理：只有团结起来，才能发挥最大的力量。
+
+ATL的窗口类也是如此，单凭CWinTraits、CWindow、CMessageMap这哥仨单打独斗是不可能成就大气候的。我们需要做的， 就是使用某种方法来将它们组合起来。感谢C++为我们带来的多重继承和模板——多重继承让我们能够将它们组合，模板让我们能够将它们灵活地组合（所谓“灵 活地组合”，即是在CWindowImpl层通过填入模板参数来决定继承链的顶层CWindowImplRoot的多重继承情况）。那么，再回到上一章的 窗口类CHelloATLWnd：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`class CHelloATLWnd : public CWindowImpl< CHelloATLWnd, CWindow, CWinTraits< WS_OVERLAPPEDWINDOW > >
+{
+public:
+CHelloATLWnd()
+{
+CWndClassInfo& wci     = GetWndClassInfo();
+wci.m_bSystemCursor    = TRUE;
+wci.m_lpszCursorID     = IDC_ARROW;
+wci.m_wc.hbrBackground = (HBRUSH)GetStockObject( WHITE_BRUSH );
+wci.m_wc.hIcon         = LoadIcon( NULL, IDI_APPLICATION );
+}
+public:
+DECLARE_WND_CLASS( _T("HelloATL") )
+public:
+BEGIN_MSG_MAP( CHelloATLWnd )
+MESSAGE_HANDLER( WM_DESTROY, OnDestroy )
+MESSAGE_HANDLER( WM_PAINT, OnPaint )
+END_MSG_MAP()
+public:
+LRESULT OnDestroy( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& hHandled )
+{
+::PostQuitMessage( 0 );
+return 0;
+}
+LRESULT OnPaint( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& hHandled )
+{
+HDC hdc;
+PAINTSTRUCT ps; 
+
+``hdc = BeginPaint( &ps );
+DrawText( hdc, _T("Hello, ATL!"), -1, &ps.rcPaint, DT_CENTER | DT_VCENTER | DT_SINGLELINE );
+EndPaint( &ps );
+return 0;
+}
+};`
+</td>
+</tr>
+</tbody>
+</table>
+不知道你现在再看到这个类是否会少几分生疏？在这里，CWindowImpl就担任了“七色彩莲”的角色—— BEGIN_MSG_MAP/END_MSG_MAP是CMessageMap由继承带来的，BeginPaint/EndPaint是CWindow由 模板和多重继承带来的，以及控制窗口样式的CWinTraits（在这里要提醒一点，在将CWinTraits作为CWindowImpl的模板参数时， 一定要将CWinTraits的模板参数右尖括号与CWindowImpl的模板参数右尖括号用空格分隔开，否则凑在一起的两个右尖括号 “>>”将会被编译器判断为右移操作符）是由模板带来的。
+
+当然，我还要回答上一章遗留下来的问题：WNDCLASSEX窗口类是如何注册的？
+
+如果你是前已经偷偷看过CWindowImpl::Create的代码，那么相信这个问题你已经知道答案了。不过我还是要把相关代码列出来：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`// from CWindowImpl::Create
+if (T::GetWndClassInfo().m_lpszOrigName == NULL)
+T::GetWndClassInfo().m_lpszOrigName = GetWndClassName();
+ATOM atom = T::GetWndClassInfo().Register(&m_pfnSuperWindowProc);`
+</td>
+</tr>
+</tbody>
+</table>
+也就是说，窗口类的注册是在窗口创建前完成的。
+
+下面，李马请你注意上面代码中GetWndClassInfo的部分。这个函数是由窗口类的编写者——也就是我们，ATL的GUI开发者——完成 的，它的主要功能是用来获取窗口类的属性。在通常的情况下，GetWndClassInfo使用 DECLARE_WND_CLASS/DECLARE_WND_CLASS_EX的形式来实现。参看DECLARE_WND_CLASS宏的定义：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`#define DECLARE_WND_CLASS(WndClassName) \
+static CWndClassInfo& GetWndClassInfo() \
+{ \
+static CWndClassInfo wc = \
+{ \
+{ sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, StartWindowProc, \
+0, 0, NULL, NULL, NULL, (HBRUSH)(COLOR_WINDOW + 1), NULL, WndClassName, NULL }, \
+NULL, NULL, IDC_ARROW, TRUE, 0, _T("") \
+}; \
+return wc; \
+}`
+</td>
+</tr>
+</tbody>
+</table>
+这里已经为要注册的窗口类设置好了绝大多数的常用属性，当然，如果你仍然觉得自己需要更改更多的属性的话，可以像CHelloATLWnd的构造函 数里那么做。特别要指出的一点是，ATL对窗口类的光标（cursor）属性是进行特殊处理的，对 CWndClassInfo::m_wc.hCursor直接赋值是不行的。
+
+**编译期的虚函数机制**
+
+ATL的效率远远高于MFC，其中一方面的原因就是它把很多的工作都通过模板来交给编译器了，比如我上文提到的编译期的虚函数机制。这个机制可以避免虚函数带来的一切开销而静态实现虚函数的特性。考虑以下代码：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`template < typename T >
+class Parent
+{
+public:
+void f()
+{
+cout << "f from Parent." << endl;
+}
+void g()
+{
+T* pT = (T*)this;
+pT->f();
+}
+}; 
+
+class Child1 : public Parent< Child1 >
+{
+public:
+void f()
+{
+cout << "f from Child1." << endl;
+}
+};
+
+``class Child2 : public Parent< Child2 >
+{
+};`
+</td>
+</tr>
+</tbody>
+</table>
+然后，这样进行调用：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`Child1 c1;
+Child2 c2;
+c1.g(); // f from Child1.
+c2.g(); // f from Parent.`
+</td>
+</tr>
+</tbody>
+</table>
+所有的奥秘尽在Parent::g之中，它通过一个类型转换在编译期就决定了调用哪个函数，颇有些多态性的味道。ATL就是借助这样的机制来保证效率的，如果你深入到atlwin.h的源代码之中，肯定会发现更多诸如此类的例子。
+
+**第四章 对话框和控件**
+
+对于Win32  GUI的程序设计来说，其实大部分的情况下我们都不需要自己进行窗口类的设计，而是可以使用Win32中与用户交互的标准方式——对话框（Dialog  Box）。我们可以在VC  IDE的资源设计器中设计对话框资源，并在其上放置各种控件资源——的确是非常方便。在本章里，李马将要向诸位介绍如何利用ATL来操作对话框，以及如何 操作对话框上的各种控件。
+
+**题外话先**
+
+ATL，是的，正是由于我所讲的是“ATL的GUI程序设计”，所以我才可能将内容直接经由CWindowImpl过渡到CDialogImpl ——而不是过渡到你先前所熟悉的CFrameWnd和Doc/View体系。况且，即使这之后我深入到了CDialogImpl之中，我也不会讲到你所熟 悉的DDX/DDV机制。再三考虑之下，我还是决定把这些东西在CDialogImpl前一并当作题外话说出来，先。
+
+再来回顾一下ATL的性质。它是一个被设计用来开发COM组件的Framework，所以对GUI部分的支持——套用一句2006年的流行语来说： 那是相~~当~~（加重且延长声音地）少。于是，它没有“框架窗口”这个概念，更不会有Doc/View体系。其实我对MFC的这一设计特点感觉不错，毕 竟它可以通过一个简单的CFrameWnd类来实现一个标准的SDI/MDI框架，而且其中带有工具栏、状态栏和一个用来容纳视图的标准的工作区域。我们 可以通过控制框架窗口中的View及其相关的Doc类型来完成特定文档类型的读写与显示。——但是，很不幸，这一切都只属于伟大的MFC；在ATL中，我 们什么都没有。
+
+另外，在对话框的技术领域中，使用ATL的我们也不会享有数据交换与验证（DDX/DDV）的支持。这一所谓的缺憾我并不想多加评价，一是因为我并 不了解MFC中DDX/DDV的内部机制，二是因为我直觉上认为这是影响MFC效率的罪魁之一。在MFC中，我们可以通过向导的支持轻易地为表单的输入域 加入输入校验与限制，而且表现在源代码上的仅仅是几个宏而已——我自认天下没有免费的午餐，这几个简单的宏既然能为我们包办一切，那我们势必会相应地失去 些东西，要不然忒便宜了也就。
+
+题外话的最后不免落入俗套，我将会向诸位介绍解决以上缺憾的方法。——也许你猜到了，就是从WTL中寻找解决方案。WTL是对ATL的扩展，所以它 的很多代码可以直接拿过来用（当然可能需要一些小小的修改）。而且，不知道WTL的设计者是不是为了拉拢MFC的开发人员，总之它里面添加了很多与MFC 相似的元素，例如以上所说的框架窗口和DDX/DDV。
+
+**CDialogImpl**
+
+与ATL窗口类CWindowImpl相对应，ATL的对话框类名为CDialogImpl。它的定义如下：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`template <class T, class TBase = CWindow>
+class ATL_NO_VTABLE CDialogImpl : public CDialogImplBaseT< TBase >
+{
+// ...
+};`
+</td>
+</tr>
+</tbody>
+</table>
+你可以从上面的代码看到，CDialogImpl与CWindowImpl类似，也经历了一系列的继承链。不过，它较之CWindowImpl的模板参数要简单得多——毕竟是标准对话框，有些东西是不用操心的。
+
+CDialogImpl的使用方法大致如下：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`class CYourDlg : public CDialogImpl< CYourDlg >
+{
+public:
+enum { IDD = IDD_YOUR_DLG };
+public:
+BEGIN_MSG_MAP( CYourDlg )
+// 消息映射
+END_MSG_MAP()
+public:
+// 消息响应函数
+///////////////////
+// 其余的部分...
+};`
+</td>
+</tr>
+</tbody>
+</table>
+和CWindowImpl不一样，CDialogImpl不需要使用DECLARE_WND_CLASS来定义窗口类。在原来 DECLARE_WND_CLASS的位置，一个枚举代替了原来窗口类定义的部分。这里的枚举列表必须有一个被命名为IDD，并且它的值要被设置为相应的 对话框资源ID。呃……写到这里，我仿佛已经感觉到了你的不快，但CDialogImpl的实现即是如此（以 CDialogImpl<T>::DoModal为例）：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`// from CDialogImpl<T>::DoModal
+return ::DialogBoxParam(_Module.GetResourceInstance(), MAKEINTRESOURCE(T::IDD),
+hWndParent, (DLGPROC)T::StartDialogProc, dwInitParam);`
+</td>
+</tr>
+</tbody>
+</table>
+当然，如果你不喜欢这么做的话，也可以自己从CDialogImplBaseT派生出属于你的对话框类。
+
+再回到CDialogImpl的话题上来。这个类主要有以下几个常用的成员函数：
+
+
+
+<table cellpadding="0" cellspacing="0" border="1" id="AutoNumber1" width="50%" >
+<tbody >
+<tr >
+
+<td width="33%" height="20" >**成员函数**
+</td>
+
+<td height="20" >**说明**
+</td>
+</tr>
+<tr >
+
+<td width="33%" height="20" >DoModal
+</td>
+
+<td height="20" >显示一个模态对话框
+</td>
+</tr>
+<tr >
+
+<td width="33%" height="20" >EndDialog
+</td>
+
+<td height="20" >销毁一个模态对话框
+</td>
+</tr>
+<tr >
+
+<td width="33%" height="20" >Create
+</td>
+
+<td height="20" >创建一个非模态对话框
+</td>
+</tr>
+<tr >
+
+<td width="33%" height="20" >DestroyWindow
+</td>
+
+<td height="20" >销毁一个非模态对话框
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+这样看来是不是和MFC十分相似？事实上，如果你已经定义好了一个对话框类，那么它的使用和MFC的对话框类的确没什么两样：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`CYourDlg dlg;
+dlg.DoModal();`
+</td>
+</tr>
+</tbody>
+</table>
+**控件的使用**
+
+从与用户交互的角度来看，控件是对话框上必不可少的元素。在Win32 GUI程序设计中，对控件的操作大可归为两个方面：一是对控件进行操作，二是响应控件的事件。排除子类化的事件响应（后面我会专门介绍如何在ATL中进行控件的子类化），那么这两方面的具体实现就是：
+
+
+
+	
+  * 使用窗口操作的API函数或发送消息来操作控件。
+
+	
+  * 处理WM_COMMAND或WM_NOTIFY来响应控件的事件。
+
+
+根据顺序，李马来为大家介绍一下如何对控件进行操作先。这通常可以经由CWindow及其派生类实现，以下代码示范了如何禁用一个控件：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`CWindow ctrl = GetDlgItem( IDC_CONTROL );
+ctrl.EnableWindow( FALSE );`
+</td>
+</tr>
+</tbody>
+</table>
+如果你要操作的控件需要用到特定的特性（也就是通过发送消息来实现的特有行为），当然你可以通过使用CWindow::SendMessage来实 现，不过我并不推荐你使用这种方法，因为SendMessage是不会对消息参数进行类型检查的。而且，考虑到代码的可复用性，你可以对CWindow进 行派生以达到目的。例如，对于列表控件的封装可以是类似下面这个样子：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`class CListBox : public CWindow
+{
+public:
+int AddString( LPCTSTR lpszString )
+{
+return ::SendMessage( m_hWnd, LB_ADDSTRING, 0, (LPARAM)lpszString );
+}
+};`
+</td>
+</tr>
+</tbody>
+</table>
+然后，这样进行调用：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`CListBox list;
+list.Attach( GetDlgItem( IDC_LIST ) );
+list.AddString( _T("This is a test line") );`
+</td>
+</tr>
+</tbody>
+</table>
+可能你会有所疑问：为什么CWindow的例子直接使用了“=”来进行赋值，而CListBox则要使用Attach来初始化。当然，其实这两者并 没有实质上的区别，只不过是CWindow重载了operator=操作符，而CListBox没有这样做罢了（严格说来，派生自CWindow的 CListBox当然继承了CWindow的operator=，但是它并不能用于CListBox对象，如果强行使用则会得到一个“error  C2679: binary '=' : no operator defined which takes a right-hand operand  of type 'struct HWND__ *' (or there is no acceptable  conversion)”的错误）。如果你也希望CListBox支持operator=的初始化方式，可以这样来对CListBox进行封装：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`class CListBox : public CWindow
+{
+public:
+CListBox& operator=( HWND hWnd )
+{
+m_hWnd = hWnd;
+return *this;
+}
+public:
+int AddString( LPCTSTR lpszString )
+{
+return ::SendMessage( m_hWnd, LB_ADDSTRING, 0, (LPARAM)lpszString );
+}
+};`
+</td>
+</tr>
+</tbody>
+</table>
+下面来介绍对控件事件的处理。通常控件在某些事件发生时会以发送WM_COMMAND（普通控件）或WM_NOTIFY（公共控件）消息的方式通知其父窗口，然后我们在其父窗口的窗口过程中处理这些消息即可。WM_COMMAND和WM_NOTIFY的参数意义如下：
+
+
+
+<table cellpadding="0" cellspacing="0" border="1" id="AutoNumber2" width="50%" >
+<tbody >
+<tr >
+
+<td width="20%" height="20" >
+</td>
+
+<td width="40%" height="20" >WM_COMMAND
+</td>
+
+<td width="50%" height="20" >WM_NOTIFY
+</td>
+</tr>
+<tr >
+
+<td width="20%" height="20" >wParam
+</td>
+
+<td width="40%" height="20" >HIWORD(wParam)为通知消息代码，LOWORD(wParam)为控件ID
+</td>
+
+<td width="50%" height="20" >发生通知消息的控件ID，不过仍建议使用lParam参数中的ID
+</td>
+</tr>
+<tr >
+
+<td width="20%" height="20" >lParam
+</td>
+
+<td width="40%" height="20" >发生通知消息的控件句柄
+</td>
+
+<td width="50%" height="20" >一个指向NMHDR结构的指针，这个结构中包含了通知消息的各种信息
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+在ATL中，可以使用如下的宏来进行各种消息的分流（在此将Windows消息分流的宏也一并加上）：
+
+
+
+<table cellpadding="0" cellspacing="0" border="1" id="AutoNumber3" width="50%" >
+<tbody >
+<tr >
+
+<td width="50%" height="20" >**消息分流宏**
+</td>
+
+<td width="50%" height="20" >**说明**
+</td>
+</tr>
+<tr >
+
+<td width="50%" >MESSAGE_HANDLER
+</td>
+
+<td width="50%" >用于将某个特定消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >MESSAGE_RANGE_HANDLER
+</td>
+
+<td width="50%" >用于将某个范围内的消息一并分流至同一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >COMMAND_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定ID、特定通知码的WM_COMMAND消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >COMMAND_ID_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定ID的WM_COMMAND消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >COMMAND_CODE_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定通知码的WM_COMMAND消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >COMMAND_RANGE_HANDLER
+</td>
+
+<td width="50%" >用于将来自某个ID范围内的WM_COMMAND消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >NOTIFY_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定ID、特定通知码的WM_NOTIFY消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >NOTIFY_ID_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定ID的WM_NOTIFY消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >NOTIFY_CODE_HANDLER
+</td>
+
+<td width="50%" >用于将来自特定通知码的WM_NOTIFY消息分流至一个消息处理函数。
+</td>
+</tr>
+<tr >
+
+<td width="50%" >NOTIFY_RANGE_HANDLER
+</td>
+
+<td width="50%" >用于将来自某个ID范围内的WM_NOTIFY消息分流至一个消息处理函数。
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+另外，处理Windows消息、WM_COMMAND消息、WM_NOTIFY消息的消息处理函数应该分别满足如下规格要求：
+
+
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`// atlwin.h
+// Handler prototypes:
+//  LRESULT MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+//  LRESULT CommandHandler(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+//  LRESULT NotifyHandler(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);`
+</td>
+</tr>
+</tbody>
+</table>
+**李马牌通讯录管理系统**
+
+![](http://www.titilima.cn/pics/atlgui03.gif)
+
+别误会，这并不是什么正儿八经的所谓“信息管理系统”，而只是我为本章写下的一个简单示例而已。这里面并不涉及数据的存储，而只是为演示本章的内容而实现了必要的流程而已。在此李马并不打算对这个程序的代码进行过多解说，仅仅点出几点需要特殊说明的。
+
+
+
+	
+  1. 由于程序中使用了公共控件ListView，所以在WinMain的开头需要对公共控件库进行初始化：
+<table cellspacing="1" border="0" >
+<tbody >
+<tr >
+
+<td >`// 初始化公共控件先
+INITCOMMONCONTROLSEX init;
+init.dwSize = sizeof( init );
+init.dwICC  = ICC_LISTVIEW_CLASSES;
+InitCommonControlsEx( &init );`
+</td>
+</tr>
+</tbody>
+</table>
+在此我有必要指出，对公共控件库的初始化应该尽量使用InitCommonControlsEx，即使InitCommonControls貌似更加方便 一些。我曾经做过测试，一个使用了DateTime控件并由InitCommonControls初始化的应用程序在WinXP sp2 + VC  6.0编译完成后，在Win2K下是不能运行的。
+
+	
+  2. CMainDlg::OnRadioSex是为了演示COMMAND_RANGE_HANDLER而写的一个消息处理函数，其实针对这个 示例并不用编写之——因为Windows系统会自动对Radio按钮进行检选状态的处理；但如若考虑到多组Radio按钮存在的情 况，CMainDlg::OnRadioSex这样的处理函数便会凸显出它的用处。
+
+	
+  3. LListView::GetSelectionMark并不能用来准确判断ListView的选中项，尤其是在选中项被删除之后。
+
+
+原始地址：http://blog.csdn.net/titilima/category/172505.aspx

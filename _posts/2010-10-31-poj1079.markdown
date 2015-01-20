@@ -1,0 +1,232 @@
+---
+author: dashashi
+comments: true
+date: 2010-10-31 01:33:00+00:00
+layout: post
+slug: poj1079
+title: POJ1079
+wordpress_id: 398
+categories:
+- 解题报告
+tags:
+- poj
+- RP
+---
+
+
+
+
+上题目- -
+
+
+Ratio
+
+
+
+
+
+<table align="center" >
+<tbody >
+<tr >
+
+<td >**Time Limit:** 1000MS
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Memory Limit:** 10000K
+</td>
+</tr>
+<tr >
+
+<td >**Total Submissions:** 2968
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Accepted:** 1057
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+Description
+
+
+
+
+
+If
+you ever see a televised report on stock market activity, you'll hear
+the anchorperson say something like ``Gainers outnumbered losers 14 to
+9,'' which means that for every 14 stocks that increased in value that
+day, approximately 9 other stocks declined in value. Often, as you hear
+that, you'll see on the screen something like this:
+
+Gainers 1498
+
+Losers   902
+
+
+
+As a person with a head for numbers, you'll notice that the
+anchorperson could have said ``Gainers outnumbered losers 5 to 3'',
+which is a more accurate approximation to what really happened.  After
+all, the exact ratio of winners to losers is (to the nearest millionth)
+1.660754, and he reported a ratio of 14 to 9, which is 1.555555, for an
+error of 0.105199; he could have said ``5 to 3'', and introduced an
+error of only 1.666667-1.660754=0.005913.  The estimate ``5 to 3'' is
+not as accurate as ``1498 to 902'' of course; evidently, another goal is
+to use small integers to express the ratio. So, why did the
+anchorperson say ``14 to 9?''  Because his algorithm is to lop off the
+last two digits of each number and use those as the approximate ratio.
+
+
+
+What the anchorman needs is a list of rational approximations of
+increasing accuracy, so that he can pick one to read on the air.
+Specifically, he needs a sequence {a_1, a_2, ..., a_n} where a_1 is a
+rational number with denominator 1 that most exactly matches the true
+ratio of winners to losers (rounding up in case of ties), a_{i+1} is the
+rational number with least denominator that provides a more accurate
+approximation than a_i, and a_n is the exact ratio, expressed with the
+least possible denominator.  Given this sequence, the anchorperson can
+decide which ratio gives the best tradeoff between accuracy and
+simplicity.
+
+
+
+For example, if 5 stocks rose in price and 4 fell, the best
+approximation with denominator 1 is 1/1; that is, for every stock that
+fell, about one rose.  This answer differs from the exact answer by 0.25
+(1.0 vs 1.25).  The best approximations with two in the denominator are
+2/2 and 3/2, but neither is an improvement on the ratio 1/1, so neither
+would be considered.  The best approximation with three in the
+denominator 4/3, is more accurate than any seen so far, so it is one
+that should be reported.  Finally, of course, 5/4 is exactly the ratio,
+and so it is the last number reported in the sequence.
+
+
+
+Can you automate this process and help the anchorpeople?
+<!-- more -->
+
+
+
+
+Input
+
+
+
+
+
+input
+contains several pairs of positive integers. Each pair is on a line by
+itself, beginning in the first column and with a space between the two
+numbers.  The first number of a pair is the number of gaining stocks for
+the day, and the second number is the number of losing stocks for the
+day.   The total number of stocks never exceeds 5000.
+
+
+
+
+Output
+
+
+
+
+
+For
+each input pair, the standard output should contain a series of
+approximations to the ratio of gainers to losers.  The first
+approximation has '1' as denominator, and the last is exactly the ratio
+of gainers to losers, expressed as a fraction with least possible
+denominator.  The approximations in between are increasingly accurate
+and have increasing denominators, as described above.
+
+The approximations for a pair are printed one to a line, beginning
+in column one, with the numerator and denominator of an approximation
+separated by a slash (``/'').  A blank line separates one sequence of
+approximations from another.
+
+
+
+
+
+
+
+
+Sample Input
+
+
+
+
+    
+    5 4 
+    1498 902
+
+
+
+
+Sample Output
+
+
+
+
+    
+    1/1 
+    4/3 
+    5/4 
+    
+    2/1 
+    3/2 
+    5/3 
+    48/29 
+    53/32 
+    58/35 
+    63/38 
+    68/41 
+    73/44 
+    78/47 
+    83/50 
+    88/53 
+    93/56 
+    377/227 
+    470/283 
+    563/339 
+    656/395 
+    749/451
+
+
+题目有点长- -一看来源是USA的题目- -怪不得英语读起来感觉就不一样- -凑合还是能够看懂题目
+题目的意思是给你两个数字n,m，然后要求得到一串数字a1到ak，其中a1为分母为1时a/1最接近n/m的整数，然后a2是分母比1大并且比a1/1更加接近n/m的那个整数，以此类推，ak表示刚好等于n/m的情况，对于同一个分母有两个分子同时符合要求时取大的
+一开始想到二分啥的- -其实不需要二分直接算就可以，不过还是用二分写了，写出来之后发现即使是4/10跟6/15相比都会有浮点误差，于是稍微修改了一下判断条件,加了个eps，本地调试通过，提交，WA了……
+接下来修改了一些无关紧要的东西，继续WA中…………
+看看时间有点迟了，急着睡觉，干脆看Discuss，发现Discuss里面跟我不一样的主要是有些人用整数比较来避免浮点误差，另外还有就是直接计算而不是二分- -话说这个时段脑子果然不行- -
+于是我在纸上推导了一下，得到一个式子，改好，提交，继续WA…………
+再看程序，发现比较的地方可能会溢出- -（其实是不会溢出的），于是干脆改成int64，自己写了一个abs，提交，WA……
+悲情………………
+突然发现读入的地方感觉可能会出错，改了一下判断文件结束的代码，居然就AC了……瞎了…………
+我之前的代码，
+scanf("%d%d", &n, &m);
+if(feof(stdin))
+return false;
+改之后的代码
+if(scanf("%d%d", &n, &m) == EOF)
+return false;
+前面的代码用了很久了，主要原因是遇到除了m，n之外还有其他数据的时候这样子判断比较方便，但是偏偏今天只有n，m，于是就悲剧了……
+回过头，拿了原来WA的几个程序，发现全部都能AC
+看来一开始对精度的估计还是比较准的- -可惜对精度估计不够自信反而对错误的输入方式太自信了……悲剧……
+以后一定得小心- -现场赛的时候这样子那可就太悲剧了……
+话说刷AC率- -1A的题目好少……2A的题目更少……大部分都是要么1A，要么N个提交A……+U
+
+
+
+
+

@@ -1,0 +1,18 @@
+---
+author: dashashi
+comments: true
+date: 2011-04-18 15:17:12+00:00
+layout: post
+slug: '%e6%8a%98%e8%85%be%e4%ba%86%e4%b8%aa%e4%ba%9a%e9%a9%ac%e9%80%8a%e7%9a%84%e5%85%8d%e8%b4%b9vps'
+title: 折腾了个亚马逊的免费VPS
+wordpress_id: 1175
+categories:
+- Linux
+tags:
+- Linux
+- vps
+---
+
+这两天折腾了个亚马逊的VPS，云计算什么的- -|挺给力的，不过由于某种原因暂时还是先把博客放在这里- -|过段时间再搬过去- -||
+
+折腾了两天，总算折腾地差不多勒……Linux虽然用过一段时间，但是真的我完全自己配置问题还是比较大- -|于是各种百度大神…………找到几篇不错的文章，贴上来

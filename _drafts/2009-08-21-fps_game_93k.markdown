@@ -1,0 +1,18 @@
+---
+author: dashashi
+comments: true
+date: 2009-08-21 22:41:00+00:00
+layout: post
+slug: '%e7%a5%9e%e5%a5%87%e7%9a%843d%e5%b0%84%e5%87%bb%e6%b8%b8%e6%88%8f%ef%bc%8c%e5%8f%aa%e6%9c%8993k%ef%bc%81'
+title: 神奇的3D射击游戏，只有93K！
+wordpress_id: 454
+categories:
+- 娱乐
+tags:
+- 3D
+- 射击游戏
+---
+
+单从游戏的角度讲，可能不算什么，但是当你看到这个游戏的大小，只是93K！！！！那就知道神奇之所在了
+
+[95kb的3d射击游戏]({{site.addr}}/wp_uploads/2009/08/95kb的3d射击游戏.rar)

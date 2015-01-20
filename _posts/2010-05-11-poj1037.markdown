@@ -1,0 +1,303 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-11 18:11:00+00:00
+layout: post
+slug: poj1037%e2%80%a6%e2%80%a6%e6%82%b2%e5%89%a7%e2%80%a6%e2%80%a6
+title: POJ1037……悲剧……
+wordpress_id: 428
+categories:
+- 解题报告
+tags:
+- acm
+- C++
+- poj
+---
+
+又是挺悲剧的一道题目……上题目先……
+
+
+
+
+[![](http://acm.pku.edu.cn/JudgeOnline/images/nantiad.jpg)](http://www.youdao.com/nanti)
+<table width="100%" border="0" >
+<tbody >
+<tr >
+
+<td >
+
+
+Language:Default
+
+
+
+
+A decorative fence
+
+
+
+
+
+<table align="center" >
+<tbody >
+<tr >
+
+<td >**Time Limit:** 1000MS
+</td>
+
+<td width="10" >
+</td>
+
+<td >**Memory Limit:** 10000K
+</td></tr>
+<tr >
+
+<td >**Total Submissions:** 3869
+</td>
+
+<td width="10" >
+</td>
+
+<td >**Accepted:** 1287
+</td></tr></tbody></table>
+
+
+
+
+Description
+
+
+
+
+Richard just finished building his new house. Now the only thing the house misses is a cute little wooden fence. He had no idea how to make a wooden fence, so he decided to order one. Somehow he got his hands on the ACME Fence Catalogue 2002, the ultimate resource on cute little wooden fences. After reading its preface he already knew, what makes a little wooden fence cute.   
+A wooden fence consists of N wooden planks, placed vertically in a row next to each other. A fence looks cute if and only if the following conditions are met:   
+�The planks have different lengths, namely 1, 2, . . . , N plank length units.   
+�Each plank with two neighbors is either larger than each of its neighbors or smaller than each of them. (Note that this makes the top of the fence alternately rise and fall.)   
+It follows, that we may uniquely describe each cute fence with N planks as a permutation a1, . . . , aN of the numbers 1, . . . ,N such that (any i; 1 < i < N) (ai − ai−1)*(ai − ai+1) > 0 and vice versa, each such permutation describes a cute fence.   
+It is obvious, that there are many di erent cute wooden fences made of N planks. To bring some order into their catalogue, the sales manager of ACME decided to order them in the following way: Fence A (represented by the permutation a1, . . . , aN) is in the catalogue before fence B (represented by b1, . . . , bN) if and only if there exists such i, that (any j < i) aj = bj and (ai < bi). (Also to decide, which of the two fences is earlier in the catalogue, take their corresponding permutations, find the first place on which they differ and compare the values on this place.) All the cute fences with N planks are numbered (starting from 1) in the order they appear in the catalogue. This number is called their catalogue number.   
+
+![](http://acm.pku.edu.cn/JudgeOnline/images/1037/fence.gif)  
+After carefully examining all the cute little wooden fences, Richard decided to order some of them. For each of them he noted the number of its planks and its catalogue number. Later, as he met his friends, he wanted to show them the fences he ordered, but he lost the catalogue somewhere. The only thing he has got are his notes. Please help him find out, how will his fences look like.
+
+
+
+
+Input
+
+
+
+
+The first line of the input file contains the number K (1 <= K <= 100) of input data sets. K lines follow, each of them describes one input data set.   
+Each of the following K lines contains two integers N and C (1 <= N <= 20), separated by a space. N is the number of planks in the fence, C is the catalogue number of the fence.   
+You may assume, that the total number of cute little wooden fences with 20 planks fits into a 64-bit signed integer variable (long long in C/C++, int64 in FreePascal). You may also assume that the input is correct, in particular that C is at least 1 and it doesn抰 exceed the number of cute fences with N planks.
+
+
+
+
+Output
+
+
+
+
+For each input data set output one line, describing the C-th fence with N planks in the catalogue. More precisely, if the fence is described by the permutation a1, . . . , aN, then the corresponding line of the output file should contain the numbers ai (in the correct order), separated by single spaces.
+
+
+
+
+Sample Input
+    
+    2
+    2 1
+    3 3
+
+
+
+
+Sample Output
+    
+    1 2
+    2 3 1
+
+</td></tr></tbody></table>
+
+
+
+
+这道题目意思还是比较容易看懂的，不过做起来比较麻烦……但是我还是自己想到了算法~不过挺悲剧就是……
+
+
+
+
+题目如果只是问总共有多少种方法情况的话能简单不少，直接DP就好了。a[i][j][k]表示总共i个数字第一位是j，k＝0表示双数位是大，k＝1表示单数位是大的情况个数，然后就能得到DP方程，分K=0，k=1两种情况。具体方程待会儿看源码吧……
+
+
+
+
+然后要打印结果就用递归。一个个减下来。先确定第一位是多少，再递归第二位，再递归第三位。写一个函数getAns(int n, long long c, int j, int k, int ans[])，取总共有n个数，第c种情况，j表示前一位的数值，k表明双数位跟单数位哪个是大，然后结果放在ans里面……最后再处理一下ans就打印了……
+
+
+
+
+呃……突然发现我的算法好复杂……应该有更好的算法……
+
+
+
+
+然后写好程序就提交，发现WA了……悲剧，然后调试，发现一个错误，问题原因是在判断找到确切位置的时候判断条件有问题，数组超下界了……但是没报错……C的悲剧啊……
+
+
+
+
+然后改了，还是WA……话说要上课了……然后就跑去上课了……上课的时候突然想到可能是编译器选了C++的关系，因为用到了long long，于是下课来电阅……换G++，继续WA……大悲剧……然后居然在记事本里面发现了错误……然后错误原因是getAns里面的c不小心用了int……哎……用VIM的大悲剧啊……如果用了IDE的话应该能够发现吧……
+
+
+
+
+话说最后居然在记事本里面就看出了错误所在……说明放下代码一段时间再看代码DEBUG效率高很多啊……比赛的时候善用这点……
+
+
+
+
+贴上代码：
+
+
+
+
+Source Code
+
+
+<table style="FONT-SIZE: 10pt" align="center" >
+<tbody >
+<tr >
+
+<td >**Problem:** [1037](http://acm.pku.edu.cn/JudgeOnline/problem?id=1037)
+</td>
+
+<td width="10" >
+</td>
+
+<td >**User:** [dashashi](http://acm.pku.edu.cn/JudgeOnline/userstatus?user_id=dashashi)
+</td></tr>
+<tr >
+
+<td >**Memory:** 396K
+</td>
+
+<td width="10" >
+</td>
+
+<td >**Time:** 32MS
+</td></tr>
+<tr >
+
+<td >**Language:** G++
+</td>
+
+<td width="10" >
+</td>
+
+<td >**Result:** Accepted
+</td></tr></tbody></table>
+
+
+
+
+  * Source Code
+    
+    <span class="sh_preproc">#include</span> <span class="sh_string"><stdio.h></span>
+    <span class="sh_preproc">#include</span> <span class="sh_string"><string.h></span>
+    
+    <span class="sh_type">int</span> n<span class="sh_symbol">,</span> t<span class="sh_symbol">;</span>
+    <span class="sh_type">long</span> <span class="sh_type">long</span> c<span class="sh_symbol">,</span> a<span class="sh_symbol">[</span><span class="sh_number">22</span><span class="sh_symbol">][</span><span class="sh_number">22</span><span class="sh_symbol">][</span><span class="sh_number">2</span><span class="sh_symbol">];</span><span class="sh_comment">//a[i][j][k]表示总共i个数字第一位是j，</span>
+                <span class="sh_comment">//k＝0表示双数位是大，k＝1表示单数位是大的情况个数</span>
+    <span class="sh_type">void</span> <span class="sh_function">Init</span><span class="sh_symbol">()</span>
+    <span class="sh_cbracket">{</span>
+        n <span class="sh_symbol">=</span> <span class="sh_number">20</span><span class="sh_symbol">;</span>
+        <span class="sh_type">int</span> i<span class="sh_symbol">,</span> j<span class="sh_symbol">,</span> t<span class="sh_symbol">;</span>
+        <span class="sh_function">memset</span><span class="sh_symbol">(</span>a<span class="sh_symbol">,</span> <span class="sh_number">0</span><span class="sh_symbol">,</span> <span class="sh_keyword">sizeof</span><span class="sh_symbol">(</span>a<span class="sh_symbol">));</span>
+        a<span class="sh_symbol">[</span><span class="sh_number">1</span><span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> <span class="sh_number">1</span><span class="sh_symbol">;</span>
+        a<span class="sh_symbol">[</span><span class="sh_number">2</span><span class="sh_symbol">][</span><span class="sh_number">2</span><span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> <span class="sh_number">1</span><span class="sh_symbol">;</span>
+        a<span class="sh_symbol">[</span><span class="sh_number">2</span><span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">][</span><span class="sh_number">0</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> <span class="sh_number">1</span><span class="sh_symbol">;</span>
+        <span class="sh_keyword">for</span><span class="sh_symbol">(</span>i<span class="sh_symbol">=</span><span class="sh_number">3</span><span class="sh_symbol">;</span> j<span class="sh_symbol"><=</span>n<span class="sh_symbol">;</span> i<span class="sh_symbol">++)</span>
+            <span class="sh_keyword">for</span><span class="sh_symbol">(</span>j<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> j<span class="sh_symbol"><=</span>i<span class="sh_symbol">;</span> j<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+                <span class="sh_keyword">for</span><span class="sh_symbol">(</span>t <span class="sh_symbol">=</span> <span class="sh_number">1</span><span class="sh_symbol">;</span> t<span class="sh_symbol"><=</span>j<span class="sh_number">-1</span><span class="sh_symbol">;</span> t<span class="sh_symbol">++)</span>
+                    a<span class="sh_symbol">[</span>i<span class="sh_symbol">][</span>j<span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">+=</span> a<span class="sh_symbol">[</span>i<span class="sh_number">-1</span><span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">0</span><span class="sh_symbol">];</span>
+                <span class="sh_keyword">for</span><span class="sh_symbol">(</span>t <span class="sh_symbol">=</span> j<span class="sh_symbol">;</span> t<span class="sh_symbol"><=</span>i<span class="sh_symbol">;</span> t<span class="sh_symbol">++)</span>
+                    a<span class="sh_symbol">[</span>i<span class="sh_symbol">][</span>j<span class="sh_symbol">][</span><span class="sh_number">0</span><span class="sh_symbol">]</span> <span class="sh_symbol">+=</span> a<span class="sh_symbol">[</span>i<span class="sh_number">-1</span><span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">];</span>
+            <span class="sh_cbracket">}</span>
+    <span class="sh_cbracket">}</span>
+    
+    <span class="sh_type">void</span> <span class="sh_function">getAns</span><span class="sh_symbol">(</span><span class="sh_type">int</span> n<span class="sh_symbol">,</span> <span class="sh_type">long</span> <span class="sh_type">long</span> c<span class="sh_symbol">,</span> <span class="sh_type">int</span> j<span class="sh_symbol">,</span> <span class="sh_type">int</span> k<span class="sh_symbol">,</span> <span class="sh_type">int</span> ans<span class="sh_symbol">[])</span>
+    <span class="sh_cbracket">{</span>
+        <span class="sh_keyword">if</span><span class="sh_symbol">(</span>n <span class="sh_symbol">==</span> <span class="sh_number">0</span><span class="sh_symbol">)</span>
+            <span class="sh_keyword">return</span><span class="sh_symbol">;</span>
+        <span class="sh_keyword">if</span><span class="sh_symbol">(</span>n <span class="sh_symbol">==</span> <span class="sh_number">1</span><span class="sh_symbol">)</span><span class="sh_cbracket">{</span>
+            ans<span class="sh_symbol">[</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> <span class="sh_number">1</span><span class="sh_symbol">;</span>
+            <span class="sh_keyword">return</span> <span class="sh_symbol">;</span>
+        <span class="sh_cbracket">}</span>
+        <span class="sh_type">int</span> t<span class="sh_symbol">;</span>
+        <span class="sh_keyword">if</span><span class="sh_symbol">(</span>k <span class="sh_symbol">==</span> <span class="sh_number">1</span><span class="sh_symbol">)</span><span class="sh_cbracket">{</span>
+            <span class="sh_keyword">for</span><span class="sh_symbol">(</span>t<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> t<span class="sh_symbol"><=</span>j<span class="sh_number">-1</span><span class="sh_symbol">;</span> t<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+                <span class="sh_keyword">if</span><span class="sh_symbol">(</span>a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">0</span><span class="sh_symbol">]</span> <span class="sh_symbol">>=</span> c<span class="sh_symbol">)</span>
+                    <span class="sh_keyword">break</span><span class="sh_symbol">;</span>
+                c <span class="sh_symbol">-=</span> a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">0</span><span class="sh_symbol">];</span>
+            <span class="sh_cbracket">}</span>
+            ans<span class="sh_symbol">[</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> t<span class="sh_symbol">;</span>
+            <span class="sh_function">getAns</span><span class="sh_symbol">(</span>n<span class="sh_number">-1</span><span class="sh_symbol">,</span> c<span class="sh_symbol">,</span> t<span class="sh_symbol">,</span> <span class="sh_number">1</span><span class="sh_symbol">-</span>k<span class="sh_symbol">,</span> ans<span class="sh_number">+1</span><span class="sh_symbol">);</span>
+        <span class="sh_cbracket">}</span><span class="sh_keyword">else</span> <span class="sh_keyword">if</span><span class="sh_symbol">(</span>k <span class="sh_symbol">==</span> <span class="sh_number">0</span><span class="sh_symbol">)</span><span class="sh_cbracket">{</span>
+            <span class="sh_keyword">for</span><span class="sh_symbol">(</span>t<span class="sh_symbol">=</span>j<span class="sh_symbol">;</span> t<span class="sh_symbol"><=</span>n<span class="sh_symbol">;</span> t<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+                <span class="sh_keyword">if</span><span class="sh_symbol">(</span>a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">>=</span> c<span class="sh_symbol">)</span>
+                    <span class="sh_keyword">break</span><span class="sh_symbol">;</span>
+                c <span class="sh_symbol">-=</span> a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>t<span class="sh_symbol">][</span><span class="sh_number">1</span><span class="sh_symbol">];</span>
+            <span class="sh_cbracket">}</span>
+            ans<span class="sh_symbol">[</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> t<span class="sh_symbol">;</span>
+            <span class="sh_function">getAns</span><span class="sh_symbol">(</span>n<span class="sh_number">-1</span><span class="sh_symbol">,</span> c<span class="sh_symbol">,</span> t<span class="sh_symbol">,</span> <span class="sh_number">1</span><span class="sh_symbol">-</span>k<span class="sh_symbol">,</span> ans<span class="sh_number">+1</span><span class="sh_symbol">)</span> <span class="sh_symbol">;</span>
+        <span class="sh_cbracket">}</span>
+    <span class="sh_cbracket">}</span>
+    
+    <span class="sh_type">void</span> <span class="sh_function">print</span><span class="sh_symbol">(</span><span class="sh_type">int</span> n<span class="sh_symbol">,</span> <span class="sh_type">long</span> <span class="sh_type">long</span> c<span class="sh_symbol">)</span>
+    <span class="sh_cbracket">{</span>
+        <span class="sh_type">int</span> ans<span class="sh_symbol">[</span><span class="sh_number">30</span><span class="sh_symbol">],</span> i<span class="sh_symbol">,</span> j<span class="sh_symbol">,</span> k<span class="sh_symbol">;</span>
+        <span class="sh_function">memset</span><span class="sh_symbol">(</span>ans<span class="sh_symbol">,</span> <span class="sh_number">0</span><span class="sh_symbol">,</span> <span class="sh_keyword">sizeof</span><span class="sh_symbol">(</span>ans<span class="sh_symbol">));</span>
+        <span class="sh_keyword">for</span><span class="sh_symbol">(</span>j<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> j<span class="sh_symbol"><=</span>n<span class="sh_symbol">;</span> j<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+            <span class="sh_keyword">for</span><span class="sh_symbol">(</span>k<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> k<span class="sh_symbol">>=</span><span class="sh_number">0</span><span class="sh_symbol">;</span> k<span class="sh_symbol">--)</span><span class="sh_cbracket">{</span>
+                <span class="sh_keyword">if</span><span class="sh_symbol">(</span>a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>j<span class="sh_symbol">][</span>k<span class="sh_symbol">]</span> <span class="sh_symbol">>=</span> c<span class="sh_symbol">)</span>
+                    <span class="sh_keyword">break</span><span class="sh_symbol">;</span>
+                c <span class="sh_symbol">-=</span> a<span class="sh_symbol">[</span>n<span class="sh_symbol">][</span>j<span class="sh_symbol">][</span>k<span class="sh_symbol">];</span>
+            <span class="sh_cbracket">}</span>
+            <span class="sh_keyword">if</span><span class="sh_symbol">(</span>k <span class="sh_symbol">!=</span> <span class="sh_symbol">-</span><span class="sh_number">1</span><span class="sh_symbol">)</span>
+                <span class="sh_keyword">break</span><span class="sh_symbol">;</span>
+        <span class="sh_cbracket">}</span>
+        ans<span class="sh_symbol">[</span><span class="sh_number">1</span><span class="sh_symbol">]</span> <span class="sh_symbol">=</span> j<span class="sh_symbol">;</span>
+        <span class="sh_function">getAns</span><span class="sh_symbol">(</span>n<span class="sh_number">-1</span><span class="sh_symbol">,</span> c<span class="sh_symbol">,</span> j<span class="sh_symbol">,</span> k<span class="sh_symbol">,</span> ans <span class="sh_symbol">+</span> <span class="sh_number">1</span><span class="sh_symbol">);</span>
+        <span class="sh_keyword">for</span><span class="sh_symbol">(</span>i <span class="sh_symbol">=</span> n<span class="sh_symbol">;</span> i<span class="sh_symbol">>=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> i<span class="sh_symbol">--)</span><span class="sh_cbracket">{</span>
+            <span class="sh_keyword">for</span><span class="sh_symbol">(</span>j<span class="sh_symbol">=</span>i<span class="sh_number">+1</span><span class="sh_symbol">;</span> j<span class="sh_symbol"><=</span>n<span class="sh_symbol">;</span> j<span class="sh_symbol">++)</span>
+                <span class="sh_keyword">if</span><span class="sh_symbol">(</span>ans<span class="sh_symbol">[</span>j<span class="sh_symbol">]</span> <span class="sh_symbol">>=</span> ans<span class="sh_symbol">[</span>i<span class="sh_symbol">])</span>
+                    ans<span class="sh_symbol">[</span>j<span class="sh_symbol">]++;</span>
+        <span class="sh_cbracket">}</span>
+        <span class="sh_keyword">for</span><span class="sh_symbol">(</span>j<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> j<span class="sh_symbol"><=</span>n<span class="sh_symbol">;</span> j<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+            <span class="sh_function">printf</span><span class="sh_symbol">(</span><span class="sh_string">"%d"</span><span class="sh_symbol">,</span> ans<span class="sh_symbol">[</span>j<span class="sh_symbol">]);</span>
+            <span class="sh_function">printf</span><span class="sh_symbol">(</span>j <span class="sh_symbol">==</span> n<span class="sh_symbol">?</span><span class="sh_string">"</span><span class="sh_specialchar">\n</span><span class="sh_string">"</span><span class="sh_symbol">:</span><span class="sh_string">" "</span><span class="sh_symbol">);</span>
+        <span class="sh_cbracket">}</span>
+    <span class="sh_cbracket">}</span>
+    
+    <span class="sh_type">int</span> <span class="sh_function">main</span><span class="sh_symbol">()</span>
+    <span class="sh_cbracket">{</span>
+        <span class="sh_function">Init</span><span class="sh_symbol">();</span>
+        <span class="sh_function">scanf</span><span class="sh_symbol">(</span><span class="sh_string">"%d"</span><span class="sh_symbol">,</span> <span class="sh_symbol">&</span>t<span class="sh_symbol">);</span>
+        <span class="sh_keyword">for</span><span class="sh_symbol">(</span><span class="sh_type">int</span> i<span class="sh_symbol">=</span><span class="sh_number">1</span><span class="sh_symbol">;</span> i<span class="sh_symbol"><=</span>t<span class="sh_symbol">;</span> i<span class="sh_symbol">++)</span><span class="sh_cbracket">{</span>
+            <span class="sh_function">scanf</span><span class="sh_symbol">(</span><span class="sh_string">"%d%lld"</span><span class="sh_symbol">,</span> <span class="sh_symbol">&</span>n<span class="sh_symbol">,</span> <span class="sh_symbol">&</span>c<span class="sh_symbol">);</span>
+            <span class="sh_function">print</span><span class="sh_symbol">(</span>n<span class="sh_symbol">,</span> c<span class="sh_symbol">);</span>
+        <span class="sh_cbracket">}</span>
+        <span class="sh_keyword">return</span> <span class="sh_number">0</span><span class="sh_symbol">;</span>
+    <span class="sh_cbracket">}</span>
+    
+
+
+
+
+
+
+
+
+

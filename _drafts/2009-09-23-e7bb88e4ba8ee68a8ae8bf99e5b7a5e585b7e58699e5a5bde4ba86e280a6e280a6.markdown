@@ -1,0 +1,28 @@
+---
+author: dashashi
+comments: true
+date: 2009-09-23 21:49:00+00:00
+layout: post
+slug: '%e7%bb%88%e4%ba%8e%e6%8a%8a%e8%bf%99%e5%b7%a5%e5%85%b7%e5%86%99%e5%a5%bd%e4%ba%86%e2%80%a6%e2%80%a6'
+title: 终于把这工具写好了……
+wordpress_id: 449
+categories:
+- 写程序
+---
+
+FolderChanger，修改我的文档，收藏夹等的路径，方便重装系统之后直接恢复以及文件管理~~
+
+
+
+
+
+
+
+终于把0.1版本写好了，第一个版本~~有兴趣的朋友拿去玩玩~~
+
+[FolderChanger v0.1](../wp-content/uploads/2009/09/FolderChanger-v0.1.rar)
+
+
+
+
+

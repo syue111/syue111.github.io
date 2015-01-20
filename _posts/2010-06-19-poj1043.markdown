@@ -1,0 +1,289 @@
+---
+author: dashashi
+comments: true
+date: 2010-06-19 17:05:00+00:00
+layout: post
+slug: poj1043
+title: POJ1043
+wordpress_id: 419
+categories:
+- 解题报告
+tags:
+- C++
+- poj
+---
+
+先上题目吧
+
+What's In A Name?
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:**
+ 1000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 10000K
+</td></tr><tr >
+<td >**Total
+ Submissions:** 1614
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:**
+547
+</td></tr></tbody></table>
+
+Description
+
+The FBI is conducting a surveillance of a known
+ criminal hideout which serves as a communication center for a number of
+ men and women of nefarious intent. Using sophisticated decryption
+software and good old fashion wiretaps, they are able to decode any
+e-mail messages leaving the site. However, before any arrest warrants
+can be served, they must match actual names with the user ID's on the
+messages. While these criminals are evil, they're not stupid, so they
+use random strings of letters for
+  
+their ID's (no dillingerj ID's found here). The FBI knows that each
+criminal uses only one ID. The only other information they have which
+will help them is a log of names of the people who enter and leave the
+hideout. In many cases, this is enough to link the names to the ID's. 
+
+Input
+
+Input consists of
+one problem instance. The first line contains a single positive integer n
+ indicating the number of criminals using the hideout. The maximum value
+ for n will be 20. The next line contains the n user ID's, separated by
+single spaces. Next will be the log entries in chronological order. Each
+ entry in the log has the form type arg , where type is either E, L or
+M: E indicates that criminal arg has entered the hideout; L indicates
+criminal arg has left the hideout; M indicates a message was intercepted
+ from user ID arg. A line containing only the letter Q indicates the end
+ of the log. Note that not all user ID's may be present in the log but
+each criminal name will be guaranteed to be in the log at least once. At
+ the start of the log, the hideout is presumed to be empty. All names
+and user ID's consist of only lowercase letters and have length at most
+20. Note: The line containing only the user ID's may contain more than
+80 characters. 
+
+Output
+
+Output consists of n lines, each containing a list of
+criminal names and their corresponding user ID's, if known. The list
+should be sorted in alphabetical order by the criminal names. Each line
+has the form name:userid , where name is the criminal's name and userid
+is either their user ID or the string ??? if their user ID could not be
+determined from the surveillance log. 
+
+Sample Input
+    
+    7 <br></br>bigman mangler sinbad fatman bigcheese frenchie capodicapo <br></br>E mugsy <br></br>E knuckles <br></br>M bigman <br></br>M mangler <br></br>L mugsy <br></br>E clyde <br></br>E bonnie <br></br>M bigman <br></br>M fatman <br></br>M frenchie <br></br>L clyde <br></br>M fatman <br></br>E ugati <br></br>M sinbad <br></br>E moriarty <br></br>E booth <br></br>Q 
+
+Sample Output
+
+Hint
+
+bonnie:fatman
+  
+booth:???
+  
+clyde:frenchie
+  
+knuckles:bigman
+  
+moriarty:???
+  
+mugsy:mangler
+  
+ugati:sinbad
+
+Source  
+
+
+  
+
+
+这是一道二分图匹配的题目，一开始的时候想到了构图的办法，但是弄完图之后没有想到用二分图匹配，而是用了自己想出来的一个烂办法，结果就是WA，想到了一个反例又看了Discuss之后确信了用二分图匹配可以做。
+
+构图方法是先置所有边为1，然后按顺序扫描输入，当某人发出一个信息的时候，说明只可能是当前正在房间里面的人发出信息，于是就把发出信息的这个人与所有不在房间里面的人连接的边删掉，之后就能得到一个二分图。
+
+对于这个二分图，肯定是有一个完备匹配的。然后扫描二分图的每一条边，如果删了这条边之后不存在完备匹配说明这条边必须有，也就确定了一个name与id的关系了。
+
+具体写的时候用了大量STL……发现STL还是挺方便的……就是一改C的简洁风格，每次写for(map<string, string>::iterator i = a.begin(); i!= a.end(); ++i)都感觉要崩溃……然后for_each又要自己写个函数类……单单这句话看起来是清爽了些，但是整体来看又是个乱七八糟的函数类，还是一次性的，每个循环都要写个函数类……悲剧……吐槽一下……不知道C++0x有没有改进……如果有了C#的lamda表达式之类的东西那应该方便很多……
+
+另外好久没写匈牙利算法了，自己写出来之后感觉还行，也不是很乱，但是之后百度了一下别人的匈牙利算法……发现比我整整短了一倍……看起来也舒服……大悲剧……
+
+贴代码先……
+
+#include <iostream>  
+#include <map>  
+#include <string>  
+#include <algorithm>  
+using namespace std;  
+  
+int n, nowIn[21], ans[21], now, a[21][21];//a[i][j]=0表示可能，1表示可能  
+int match[41], searched[41];  
+  
+int dfs(int k)  
+{  
+for(int i=n+1; i<=n*2; i++)  
+if(a[k][i-n] == 1 && match[i] == 0){  
+match[i] = k;  
+match[k] = i;  
+return i;  
+}  
+for(int i=n+1; i<=n*2; i++)  
+if(a[k][i-n] == 1 && searched[i] == 0){  
+searched[k] = searched[i] = 1;  
+int ret = dfs(match[i]);  
+searched[k] = searched[i] = 0;  
+if(ret != 0){  
+match[i] = k;  
+match[k] = i;  
+return i;  
+}  
+}  
+return 0;  
+}  
+  
+int pipei()  
+{  
+int ret = 0;  
+fill_n(match, 41, 0);  
+fill_n(searched, 41, 0);  
+for(int i=1; i<=n ; ++i){  
+if(dfs(i))  
+++ret;  
+}  
+return ret;  
+}  
+  
+int main()  
+{  
+string name[21],ID[21];  
+map<string, int> name2n,ID2n;  
+cin >> n;  
+for(int i=1; i<=n; i++){  
+cin >> name[i];  
+name2n[name[i]] = i;  
+}  
+fill_n(nowIn, 21, 0);  
+fill_n(a[0], 21*21, 1);  
+string s1, s2;  
+now = 0;  
+while(true){  
+cin >> s1;  
+if(s1 == "Q")  
+break;  
+cin >> s2;  
+if(s1 == "E"){  
+if(ID2n[s2] == 0){  
+ID2n[s2] = ++now;  
+ID[now] = s2;  
+}  
+nowIn[ID2n[s2]] = 1;  
+}  
+if(s1 == "L")  
+nowIn[ID2n[s2]] = 0;  
+if(s1 == "M") {  
+for (int i = 1; i <= n; ++i){  
+if (nowIn[i] == 0)  
+a[name2n[s2]][i] = 0;  
+}  
+}  
+}  
+fill_n(ans, 21, 0);  
+for(int i=1; i<=n; i++){  
+for(int j=1; j<=n; j++){  
+if(a[i][j] == 1){  
+a[i][j] = 0;  
+if(pipei() != n)  
+ans[i] = j;  
+a[i][j] = 1;  
+}  
+if(ans[i] != 0)  
+break;  
+}  
+}  
+map<string, string> aa;  
+int i = 0;  
+for(int i=1; i<=n; ++i)  
+aa[ID[i]] = "???";  
+for(int i=1; i<=n; i++)  
+if(ans[i] != 0)  
+aa[ID[ans[i]]] = name[i];  
+for(map<string, string>::iterator j = aa.begin(); j!= aa.end(); ++j)  
+cout << j->first << ":" << j->second << endl;  
+return 0;  
+}  
+
+
+贴上百度来的匈牙利算法
+
+#include <cstdio>  
+#include <cstring>  
+  
+using namespace std;  
+  
+int n1, n2, m, ans;  
+int result[101]; //记录V2中的点匹配的点的编号  
+bool state [101]; //记录V2中的每个点是否被搜索过  
+bool data[101][101];//邻接矩阵 true代表有边相连  
+void init()  
+{  
+int t1, t2;  
+memset(data, 0, sizeof(data));  
+memset(result, 0, sizeof(result));  
+ans = 0;  
+scanf("
+%d%d%d", &n1, &n2, &m);  
+for (int i = 1; i <= m; i++)  
+{  
+scanf("%d%d", &t1, &t2);  
+data[t1][t2] = true;  
+}  
+return;  
+}  
+bool find(int a)  
+{  
+for (int i = 1; i <= n2; i++)  
+{  
+if (data[a][i] == 1 && !state[i]) //如果节点i与a相邻并且未被查找过  
+{  
+state[i] = true; //标记i为已查找过  
+if (result[i] == 0 //如果i未在前一个匹配M中  
+|| find(result[i])) //i在匹配M中，但是从与i相邻的节点出发可以有增广路  
+{  
+result[i] = a; //记录查找成功记录  
+return true; //返回查找成功  
+}  
+}  
+}  
+return false;  
+}  
+int main()  
+{  
+init();  
+for (int i = 1; i <= n1; i++)  
+{  
+memset(state, 0, sizeof(state)); //清空上次搜索时的标记  
+if (find(i)) ans++; //从节点i尝试扩展  
+}  
+printf("%d\n", ans);  
+return 0;  
+}  
+  
+
+
+
+
+
+
+

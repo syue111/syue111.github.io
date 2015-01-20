@@ -1,0 +1,213 @@
+---
+author: dashashi
+comments: true
+date: 2011-09-29 14:43:10+00:00
+layout: post
+slug: '%e6%9c%80%e5%b0%8f%e6%a0%91%e5%bd%a2%e5%9b%be%ef%bc%88%e4%ba%8c%ef%bc%89hdu4009'
+title: 最小树形图（二）,HDU4009
+wordpress_id: 1394
+categories:
+- 未分类
+---
+
+昨天过了两道最小树形图的题，今天准备把大连网赛那个最小树形图也干了然后最小树形图算是搞定了。
+大连这个题数据范围比较大，点是1000，边数量没说，也就是最坏情况可能达到1000^2,这么算起来的话，按照最小树形图的复杂度最坏能够达到O(N^3)也就是10亿<!-- more -->
+先用昨天写的程序交了一个，不出意外TLE了，看来写的是太奔放了，优化空间很大。想了一下，原来的程序为了图省事，在每一次循环里面都遍历了所有边，求到最短的那条边，实际上只需要在最开始处理一遍，然后在缩环之后只需要处理新产生的那个节点，另外对于从被缩环出发的点也需要处理一下。加了这个优化之后虽然复杂度还是O(VE),但是实际上是在最坏情况下才会达到（最坏情况是一直缩点到只剩一个点，并且每次缩点都是两个缩为一个）改了之后提交，结果是MLE……
+改了很多地方无果，于是在本地生成了一个大数据测试了一下，发现在添加边的时候我的方法还是太奔放了，我是把所有边都一股脑都添加到新生成的节点的边表里面，实际上只需要记录每一个目标点最短的那条边，于是乎加了一个优化，果断AC了……速度还不错- -写完之后发现其实还有一定的优化空间，于是我准备再写一个- -|先把现在的贴上
+
+    
+    #include <cstdio>
+    #include <cstring>
+    #include <vector>
+    //include <iostream>
+    
+    using namespace std;
+    
+    struct CNode
+    {
+    	short u, v;
+    	double l;
+    };
+    
+    const int MAXN = 1010;
+    const int MAXE = 10000000;
+    const double inf = 1e20;
+    
+    int n, X, Y, Z, m;
+    CNode edge[MAXE];
+    vector<CNode*> a[MAXN*2], b[MAXN*2];
+    int pre[MAXN*2], flag[MAXN*2], merge[MAXN*2];
+    double len[MAXN*2];
+    CNode* list1[MAXN*2];
+    CNode* list2[MAXN*2];
+    
+    //弱找到环，返回环第一个点的编号，不然返回-1
+    int dfs(int u)
+    {
+    	if(u < 0 || flag[u] < 0)
+    		return -1;
+    	if(flag[u] > 0)
+    		return u;
+    	flag[u] = 1;
+    	int ret = dfs(pre[u]);
+    	flag[u] = -1;
+    	return ret;
+    }
+    
+    double ZhuLiu(int root)
+    {
+    	//判断部分省略，因为必定有解
+    	double ans = 0;
+    	int nn = n;
+    	for(int i = 0; i<2*n; ++i){
+    		merge[i] = i;
+    		pre[i] = -1;
+    		len[i] = inf;
+    	}
+    
+    	for (int u = 0; u < nn; ++u) {
+    		for (vector<CNode*>::iterator i = a[u].begin(); i != a[u].end(); ++i) {
+    			int v = (*i)->v;
+    			if (pre[v] == -1 || len[v] > (*i)->l) {
+    				pre[v] = u;
+    				len[v] = (*i)->l;
+    			}
+    		}
+    	}
+    	while(true){
+    		pre[root] = -1;
+    		//找环
+    		bool NoLoop = true;
+    		for(int u = 0; u<nn; ++u)
+    			flag[u] = 0;
+    		for(int u = 0; u<nn; ++u){
+    			if(merge[u] != u)
+    				continue;
+    			int t = dfs(u);
+    			if(t < 0)
+    				continue;
+    			NoLoop = false;
+    
+    			a[nn].clear();
+    			b[nn].clear();
+    			pre[nn] = -1;
+    			len[nn] = inf;
+    			int now = t;
+    			do{
+    				merge[now] = nn;
+    				ans += len[now];
+    				now = pre[now];
+    			}while(now != t);
+    			for(int i = 0; i<nn; ++i){
+    				list1[i] = NULL;
+    				list2[i] = NULL;
+    			}
+    			do{
+    				int t = 0;
+    				for(vector<CNode*>::iterator i = a[now].begin(); i!=a[now].end(); ++i){
+    					if(merge[(*i)->v] != (*i)->v)
+    						continue;
+    					if(pre[(*i)->v] == (*i)->u)
+    						pre[(*i)->v] = nn;
+    					(*i)->u = nn;
+    					if(list1[(*i)->v] == NULL || list1[(*i)->v]->l > (*i)->l)
+    						list1[(*i)->v] = (*i);
+    					//a[nn].push_back(*i);
+    				}
+    				for(vector<CNode*>::iterator i = b[now].begin(); i!=b[now].end(); ++i){
+    					if(merge[(*i)->u] != (*i)->u)
+    						continue;
+    					(*i)->v = nn;
+    					(*i)->l -= len[now];
+    					if(len[nn] > (*i)->l){
+    						len[nn] = (*i)->l;
+    						pre[nn] = (*i)->u;
+    					}
+    					if(list2[(*i)->u] == NULL || list2[(*i)->u]->l > (*i)->l)
+    						list2[(*i)->u] = (*i);
+    					//b[nn].push_back(*i);
+    				}
+    				now = pre[now];
+    			}while(now != t);
+    			for(int i = 0; i<nn; ++i){
+    				if(list1[i] != NULL)
+    					a[nn].push_back(list1[i]);
+    				if(list2[i] != NULL)
+    					b[nn].push_back(list2[i]);
+    			}
+    			nn++;
+    			//printf("%d\n", nn);
+    			//cout << nn << endl;
+    		}
+    		if(NoLoop){
+    			for(int u = 0; u<nn; ++u)
+    				if(merge[u] == u && u != root)
+    					ans += len[u];
+    			return ans;
+    		}
+    	}
+    }
+    
+    int abs(int k)
+    {
+    	return k<0?-k:k;
+    }
+    
+    int x[MAXN], y[MAXN], z[MAXN];
+    int GetDis(int u, int v)
+    {
+    	if(z[u] >= z[v])
+    		return (abs(x[u]-x[v])+abs(y[u]-y[v])+abs(z[u]-z[v]))*Y;
+    	else
+    		return (abs(x[u]-x[v])+abs(y[u]-y[v])+abs(z[u]-z[v]))*Y+Z;
+    }
+    
+    bool Solve()
+    {
+    	scanf("%d%d%d%d", &n, &X, &Y, &Z);
+    	if(n == 0)
+    		return false;
+    	for(int i = 0; i<=n; ++i){
+    		a[i].clear();
+    		b[i].clear();
+    	}
+    	for(int i = 1; i<=n; ++i)
+    		scanf("%d%d%d", &x[i], &y[i], &z[i]);
+    	m = 0;
+    	for(int i = 1; i<=n; ++i){
+    		int k;
+    		scanf("%d", &k);
+    		int v;
+    		for(int j = 0; j<k; ++j){
+    			scanf("%d", &v);
+    			if(i == v)
+    				continue;
+    			edge[m].u = i;
+    			edge[m].v = v;
+    			edge[m].l = GetDis(i, v);
+    	//		fprintf(stderr, "%d %d %.0f\n", edge[m].u, edge[m].v, edge[m].l);
+    			a[i].push_back(&edge[m]);
+    			b[v].push_back(&edge[m]);
+    			m++;
+    		}
+    	}
+    	for(int i = 1; i<=n; ++i){
+    		edge[m].u = 0;
+    		edge[m].v = i;
+    		edge[m].l = z[i]*X;
+    //		fprintf(stderr, "%d %d %.0f\n", edge[m].u, edge[m].v, edge[m].l);
+    		a[0].push_back(&edge[m]);
+    		b[i].push_back(&edge[m]);
+    		m++;
+    	}
+    	n++;
+    	printf("%.0f\n", ZhuLiu(0));
+    	return true;
+    }
+    
+    int main(int argc, char** argv)
+    {
+    //	freopen("in.txt", "r", stdin);
+    	while(Solve());
+    	return 0;
+    }

@@ -1,0 +1,108 @@
+---
+author: dashashi
+comments: true
+date: 2010-06-11 22:10:00+00:00
+layout: post
+slug: poj1041
+title: POJ1041
+wordpress_id: 422
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+John's trip
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:**
+ 1000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td colspan="3" >**Memory Limit:**
+65536K
+</td></tr><tr >
+<td >**Total Submissions:** 3223
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:** 952
+</td>
+<td width="10px" >  
+
+</td>
+<td style="font-weight: bold; color: red;" >Special Judge
+</td></tr></tbody></table>
+
+Description
+
+Little Johnny
+has got a new car. He decided to drive around the town to visit his
+friends. Johnny wanted to visit all his friends, but there was many of
+them. In each street he had one friend. He started thinking how to make
+his trip as short as possible. Very soon he realized that the best way
+to do it was to travel through each street of town only once. Naturally,
+ he wanted to finish his trip at the same place he started, at his
+parents' house.
+  
+
+  
+The streets in Johnny's town were named by integer numbers from 1 to
+ n, n < 1995. The junctions were independently named by integer
+numbers from 1 to m, m <= 44. No junction connects more than 44
+streets. All junctions in the town had different numbers. Each street
+was connecting exactly two junctions. No two streets in the town had the
+ same number. He immediately started to plan his round trip. If there
+was more than one such round trip, he would have chosen the one which,
+when written down as a sequence of street numbers is lexicographically
+the smallest. But Johnny was not able to find even one such round trip.
+  
+
+  
+Help Johnny and write a program which finds the desired shortest
+round trip. If the round trip does not exist the program should write a
+message. Assume that Johnny lives at the junction ending the street
+appears first in the input with smaller number. All streets in the town
+are two way. There exists a way from each street to another street in
+the town. The streets in the town are very narrow and there is no
+possibility to turn back the car once he is in the street
+  
+
+
+Input
+
+Input
+file consists of several blocks. Each block describes one town. Each
+line in the block contains three integers x; y; z, where x > 0 and y
+> 0 are the numbers of junctions which are connected by the street
+number z. The end of the block is marked by the line containing x = y =
+0. At the end of the input file there is an empty block, x = y = 0. 
+
+Output
+
+Output one line of
+each block contains the sequence of street numbers (single members of
+the sequence are separated by space) describing Johnny's round trip. If
+the round trip cannot be found the corresponding output block contains
+the message "Round trip does not exist." 
+
+Sample
+Input
+    
+    1 2 1<br></br>2 3 2<br></br>3 1 6<br></br>1 2 5<br></br>2 3 3<br></br>3 1 4<br></br>0 0<br></br>1 2 1<br></br>2 3 2<br></br>1 3 3<br></br>2 4 4<br></br>0 0<br></br>0 0
+
+Sample Output
+    
+    1 2 3 5 4 6 <br></br>Round trip does not exist.<br></br><span style="font-family: Arial;"><br></br>最近几天基本都没做题目……<br></br>这题目那天看了感觉是欧拉回路，判断还好说，输出一条字典序最小的路感觉有点麻烦。搜索了一下输出欧拉回路的方法，发现基本思想是先找一条回路，然后在找到的回路中以度不为0的点为起点继续找回路，插入到一开始找到的回路中。直到所有边都被枚举。<br></br>看了这个思路感觉想不出什么方便的办法……开两个过程一个递归，然后另外一个再处理插入啥的……为了减小复杂度还用到链表……各种麻烦……<br></br>百度里面的算法很简单，一开始一直没看懂，后来突然一下懂了，先枚举的点放在后面，之后倒序输出，相当棒的算法……而且貌似曾经我知道这玩意儿……而且根据这个算法只要循环的时候枚举边就自动输出字典序……题目还是比较简单的居然……<br></br>贴代码……<br></br>#include <stdio.h><br></br>#include <string.h><br></br>#include <list><br></br><br></br>using namespace std;<br></br><br></br>typedef list<int> listInt;<br></br>listInt ans;<br></br><br></br>int n = 2000, m = 45;<br></br>int t;<br></br>int street[2010][3];<br></br>int match[2010];<br></br><br></br>int start;<br></br><br></br>bool Init()<br></br>{<br></br>int x, y, z, tmp;<br></br>memset(street, 0, sizeof(street));<br></br>memset(match, 0, sizeof(match));<br></br>ans.clear();<br></br>scanf("%d%d", &x, &y);<br></br>if(x == 0 && y == 0)<br></br>return false;<br></br>start = x;<br></br>if(start > y)<br></br>start = y;<br></br>while(x != 0){<br></br>scanf("%d", &z);<br></br>if(x > y){<br></br>tmp = x;<br></br>x = y;<br></br>y = tmp;<br></br>}<br></br>match[x]++;<br></br>match[y]++;<br></br>street[z][0] = x;<br></br>street[z][1] = y;<br></br>scanf("%d%d", &x, &y);<br></br>}<br></br>return true;<br></br>}<br></br><br></br>int father[50];<br></br><br></br>int GetFar(int k)<br></br>{<br></br>if(father[k] == k)<br></br>return k;<br></br>else{<br></br>father[k] = GetFar(father[k]);<br></br>return father[k];<br></br>}<br></br>}<br></br><br></br>bool Check()<br></br>{<br></br>for(int i=0; i<=m; i++)<br></br>father[i] = i;<br></br>for(int i=1; i<=n; i++){<br></br>if(street[i][0] != 0 && street[i][1] != 0){<br></br>father[GetFar(street[i][0])] = GetFar(street[i][1]);<br></br>}<br></br>}<br></br>for(int i=1; i<=n; i++){<br></br>if(match[i] == 0)<br></br>continue;<br></br>if(match[i] % 2 == 1)<br></br>return false;<br></br>if(GetFar(i) != GetFar(start))<br></br>return false;<br></br>}<br></br>return true;<br></br>}<br></br><br></br>void Euler(int start)<br></br>{<br></br>if(match[start] > 0){<br></br>for(int i=1; i<=n; i++){<br></br>if(street[i][2] == 0 &&(street[i][0] == start || street[i][1] == start)){<br></br>street[i][2] = 1;<br></br>match[street[i][0]] --;<br></br>match[street[i][1]] --;<br></br>if(street[i][0] == start){<br></br>Euler(street[i][1]);<br></br>}else if(street[i][1] == start){<br></br>Euler(street[i][0]);<br></br>}<br></br>ans.push_back(i);<br></br>}<br></br>}<br></br>}<br></br>}<br></br><br></br>void Solve()<br></br>{<br></br>if(!Check()){<br></br>printf("Round trip does not exist.\n");<br></br>return ;<br></br>}<br></br>t = 0;<br></br>Euler(start);<br></br><br></br>for(listInt::const_reverse_iterator i = ans.rbegin(); i != ans.rend(); ++i){<br></br>if(i != ans.rbegin()){<br></br>printf(" ");<br></br>}<br></br>printf("%d", *i);<br></br>}<br></br>printf("\n");<br></br>}<br></br><br></br>int main()<br></br>{<br></br>while(Init()){<br></br>Solve();<br></br>}<br></br>}<br></br><br></br><br></br></span>
+
+
+
+
+
+

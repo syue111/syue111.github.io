@@ -1,0 +1,101 @@
+---
+author: dashashi
+comments: true
+date: 2010-06-14 00:54:00+00:00
+layout: post
+slug: poj1042
+title: POJ1042
+wordpress_id: 421
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+先上题目……  
+
+
+Gone Fishing
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:**
+ 2000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 32768K
+</td></tr><tr >
+<td >**Total
+ Submissions:** 15920
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:**
+4444
+</td></tr></tbody></table>
+
+Description
+
+John is going on a fishing trip. He has h hours
+ available (1 <= h <= 16), and there are n lakes in the area (2
+<= n <= 25) all reachable along a single, one-way road. John
+starts at lake 1, but he can finish at any lake he wants. He can only
+travel from one lake to the next one, but he does not have to stop at
+any lake unless he wishes to. For each i = 1,...,n - 1, the number of
+5-minute intervals it takes to travel from lake i to lake i + 1 is
+denoted ti (0 < ti <=192). For example, t3 = 4 means that it takes
+ 20 minutes to travel from lake 3 to lake 4. To help plan his fishing
+trip, John has gathered some information about the lakes. For each lake
+i, the number of fish expected to be caught in the initial 5 minutes,
+denoted fi( fi >= 0 ), is known. Each 5 minutes of fishing decreases
+the number of fish expected to be caught in the next 5-minute interval
+by a constant rate of di (di >= 0). If the number of fish expected to
+ be caught in an interval is less than or equal to di , there will be no
+ more fish left in the lake in the next interval. To simplify the
+planning, John assumes that no one else will be fishing at the lakes to
+affect the number of fish he expects to catch.
+  
+Write a program to help John plan his fishing trip to maximize the
+number of fish expected to be caught. The number of minutes spent at
+each lake must be a multiple of 5. 
+
+Input
+
+You will be given a number of cases in the
+input. Each case starts with a line containing n. This is followed by a
+line containing h. Next, there is a line of n integers specifying fi (1
+<= i <=n), then a line of n integers di (1 <=i <=n), and
+finally, a line of n - 1 integers ti (1 <=i <=n - 1). Input is
+terminated by a case in which n = 0. 
+
+Output
+
+For each test case, print the number of
+minutes spent at each lake, separated by commas, for the plan achieving
+the maximum number of fish expected to be caught (you should print the
+entire plan on one line even if it exceeds 80 characters). This is
+followed by a line containing the number of fish expected.
+  
+If multiple plans exist, choose the one that spends as long as
+possible at lake 1, even if no fish are expected to be caught in some
+intervals. If there is still a tie, choose the one that spends as long
+as possible at lake 2, and so on. Insert a blank line between cases. 
+
+Sample Input
+    
+    2 <br></br>1 <br></br>10 1 <br></br>2 5 <br></br>2 <br></br>4 <br></br>4 <br></br>10 15 20 17 <br></br>0 3 4 3 <br></br>1 2 3 <br></br>4 <br></br>4 <br></br>10 15 50 30 <br></br>0 3 4 3 <br></br>1 2 3 <br></br>0 
+
+Sample Output
+    
+    45, 5 <br></br>Number of fish expected: 31 <br></br><br></br>240, 0, 0, 0 <br></br>Number of fish expected: 480 <br></br><br></br>115, 10, 50, 35 <br></br>Number of fish expected: 724 <br></br><br></br>本来以为这道题目不用写日志了的……最后发现还是很悲剧的一个题目……看了Discuss里面的数据才过……<br></br>本身这道题目意思还算简单，也就是一个不难的DP，外加需要输出结果……<br></br>从DP的角度来讲真是没什么好说的……至于输出结果只要状态转移的时候记录一下就OK了……<br></br>犯了不少错误，最开始写程序的时候就没想清楚就开始写，然后导致的结果是DP的两个维位置不符合思维定势，然后很累……<br></br>另外在测试样例的时候最后一个数据老是不对，然后就以为是顺序不对，最后居然发现是在输出结果的时候递归出问题……<br></br>还有个问题就是记录前一位的时候对于在第一个湖呆了很久的那种情况处理出了点问题……各种悲剧……<br></br>总体来看原因就是做题目的时候思路还不够清晰就开始写写程序了，根据经验来看这是大忌……老是因为这样子出问题……要把这个坏习惯改掉……<br></br>另外手感确实下降了……怎么说这道DP真的挺水的话说……思路不够清晰……比赛的时候遇到这么个东西轻则损失一道题目，重则浪费大量时间啊……必须克服掉……<br></br>
+
+
+
+
+
+

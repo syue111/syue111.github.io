@@ -1,0 +1,31 @@
+---
+author: dashashi
+comments: true
+date: 2011-05-28 07:03:20+00:00
+layout: post
+slug: '1207'
+title: 网页版的Linux
+wordpress_id: 1207
+categories:
+- Linux
+tags:
+- javascript
+- Linux
+- 网页
+---
+
+先贴地址，载入有点慢，先打开慢慢载入……再看我的文章……
+http://bellard.org/jslinux/
+话说刚看到这玩意儿的时候我还以为是个javascript写的模拟器，也就是骗人的货
+但是用了一下，感觉不像是模拟的Linux，而是一个真正的Linux在跑
+于是看了一下这货的代码
+
+<!-- more -->
+先看了下网页的源码
+主要就是调用了
+cpux86.js
+jslinux.js这两个javasript下载下来看看http://bellard.org/jslinux/cpux86.js很长，看起来好像是在模拟CPU，里面出现了EAX什么的……再看http://bellard.org/jslinux/jslinux.js里面有这么一段    pc = new PCEmulator(params);  pc.load_binary("vmlinux26.bin", 0x00100000);  initrd_size = pc.load_binary("root.bin", 0x00400000);  start_addr = 0x10000;  pc.load_binary("linuxstart.bin", start_addr);
+里面有三个bin文件vmlinux26.bin，编译过Linux内核的童鞋肯定知道了- -|这货明显是个Linux内核- -|
+下载下来看了一下，vmlinux26.bin是800多K，linuxstart.bin 14.5K，而root.bin有763K
+看来这个东西是用Javascript写了个虚拟机，然后又弄了个很小的Linux内核- -|果断给力啊……
+而之所以载入这么慢，应该是下载这加起来有1M多的镜像花了很久

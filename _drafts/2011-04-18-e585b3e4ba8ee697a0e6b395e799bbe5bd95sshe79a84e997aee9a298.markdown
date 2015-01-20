@@ -1,0 +1,18 @@
+---
+author: dashashi
+comments: true
+date: 2011-04-18 15:22:09+00:00
+layout: post
+slug: '%e5%85%b3%e4%ba%8e%e6%97%a0%e6%b3%95%e7%99%bb%e5%bd%95ssh%e7%9a%84%e9%97%ae%e9%a2%98'
+title: 关于无法登录ssh的问题
+wordpress_id: 1177
+categories:
+- Linux
+tags:
+- ssh
+- 无法登陆
+---
+
+话说刚刚搞开好EC2的时候发现在学校里面怎么连都连不上ssh，但是却能够连上22端口，而且学校外面是可以的，挂美国的VPN是可以的，甚至连用手机都是可以的！！
+
+用排除法的话，只能说学校的网络有问题……于是乎各种折腾……折腾了6个多小时，终于发现换一个端口就可以连上了……具体方法可以参考http://wenku.baidu.com/view/dab7984ae45c3b3567ec8bdd.html，实在想不通学校是如何实现这么诡异的事情的……

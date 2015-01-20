@@ -1,0 +1,37 @@
+---
+author: dashashi
+comments: true
+date: 2010-09-16 15:52:00+00:00
+layout: post
+slug: poj3648
+title: POJ3648
+wordpress_id: 403
+categories:
+- 解题报告
+tags:
+- acm
+- poj
+---
+
+http://acm.pku.edu.cn/JudgeOnline/problem?id=3648
+
+2-SAT的另外一道题目
+
+发现6道2-SAT里面除了做过的一道这是唯一的一道需要输出答案的了，作为练习当然就是挑这一道
+
+这道题目的意思大概是有个婚礼，里面有新郎新娘以及另外N-1对夫妻参加婚礼，有一个很长的桌子，夫妻双方不能同时坐在新娘的对面。然后某些人之间有一些不正当的关系，原话就是 Additionally, there are several pairs of people conducting adulterous
+relationships (both different-sex and same-sex relationships are
+possible)……咳咳，各种奸情，基情和百合……然后这种有关系的两个人也不能同时坐在新娘的对面……
+
+赤裸裸的2-SAT
+
+题目做下来发现还是有一些小错误，比如有个地方2n写成了n，还有就是在ColorDFS的时候忘了加Color，还有就是输出答案的时候搞反了，状态还是不太好……不过改了这些之后还是WA……如果这就AC了也就不会有这篇日志了……
+
+于是我看了一下Discuss，然后里面有人说……新郎新娘也会跟别人有奸情（基情、百合）……然后我没考虑到……靠……这题目太2了吧……加了一条从新娘到新浪的边，AC~2-SAT基本能写了~  
+
+
+
+
+
+
+

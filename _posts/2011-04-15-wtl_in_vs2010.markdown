@@ -1,0 +1,24 @@
+---
+author: dashashi
+comments: true
+date: 2011-04-15 20:11:38+00:00
+layout: post
+slug: '%e5%9c%a8vs2010%e4%b8%ad%e8%a3%85wtl%e7%9a%84%e6%96%b9%e6%b3%95'
+title: 在VS2010中装WTL的方法
+wordpress_id: 1165
+categories:
+- 写程序
+tags:
+- VS2010
+- wtl
+---
+
+WTL这玩意儿不多介绍了- -|感觉还是挺不错的- -|不带运行库啊，EXE小啊神马的- -||
+
+WTL是个开源项目，官网是挂在Sourceforge，而且很久没更新了，最新版本8.1_9127是09年更新的- -|，下载下来之后里面只有VS2008的安装脚本，于是乎2010就悲剧了- -|<!-- more -->
+
+虽说网站上面没有更新，但是他的SVN还是一直在更新的- -|所以直接从SVN里面拖一个最新版本下来就OK了，SVN地址是https://wtl.svn.sourceforge.net/svnroot/wtl，我是用的TortoiseSVN, <del>没用过SVN也没关系，我把拖下来的东西打了个包，放上来了- -|</del>
+
+下载下来之后直接解压缩，运行wtl\Wizards\AppWiz\setup100.js（如果是Express版本就运行setup100x.js），接着需要把头文件添加到VS2010的include目录中，由于VS2010中把include目录的选项移动到了项目中，所以需要在每个项目里面做设置，我为了偷懒，直接把include下面的所有.h文件复制到了F:\Program Files\Microsoft Visual Studio 10.0\VC\include下面，这样子直接就可以了，不知道有没有另外的一劳永逸的方法- -|不过感觉这个方法也是安全无污染没副作用的- -||
+
+PS：由于我之前安装了原来版本的WTL，在覆盖文件的时候发现很多头文件大小还是不一样的，看来还是有不少更改- -|

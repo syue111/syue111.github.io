@@ -1,0 +1,77 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-08 04:19:00+00:00
+layout: post
+slug: poj1031
+title: POJ1031
+wordpress_id: 431
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+悲剧的一道题目……  
+先上题目吧……  
+Fence  
+Time Limit: 1000MS Memory Limit: 10000K  
+Total Submissions: 1998 Accepted: 627  
+Description  
+There is an area bounded by a fence on some flat field. The fence has the height h and in the plane projection it has a form of a closed polygonal line (without self-intersections), which is specified by Cartesian coordinates (Xi, Yi) of its N vertices. At the point with coordinates (0, 0) a lamp stands on the field. The lamp may be located either outside or inside the fence, but not on its side as it is shown in the following sample pictures (parts shown in a thin line are not illuminated by the lamp):   
+[![](http://b41.photo.store.qq.com/http_imgload.cgi?/rurl4_b=f9eea412c54e5a60f4994191899c3b294280fa405cae34bdacf3da666f01dc3c31269a63142f23c6e8bdf627b8f3200725276e039cae4ecea71bd18ec22e5e3d4d8238cd7145024243d6efedc6ae570ba7f498df&a=38&b=41)](http://b41.photo.store.qq.com/http_imgload.cgi?/rurl4_b=f9eea412c54e5a60f4994191899c3b294280fa405cae34bdacf3da666f01dc3c31269a63142f23c6e8bdf627b8f3200725276e039cae4ecea71bd18ec22e5e3d4d8238cd7145024243d6efedc6ae570ba7f498df&a=38&b=41)  
+  
+The fence is perfectly black, i.e. it is neither reflecting, nor diffusing, nor letting the light through. Research and experiments showed that the following law expresses the intensity of light falling on an arbitrary illuminated point of this fence:   
+I0=k/r  
+  
+where k is a known constant value not depending on the point in question, r is the distance between this point and the lamp in the plane projection. The illumination of an infinitesimal narrow vertical board with the width dl and the height h is   
+dI=I0*|cosα|*dl*h  
+  
+where I0is the intensity of light on that board of the fence, α is the angle in the plane projection between the normal to the side of the fence at this point and the direction to the lamp.   
+You are to write a program that will find the total illumination of the fence that is defined as the sum of illuminations of all its illuminated boards.   
+Input  
+The first line of the input file contains the numbers k, h and N, separated by spaces. k and h are real constants. N (3 <= N <= 100) is the number of vertices of the fence. Then N lines follow, every line contains two real numbers Xi and Yi, separated by a space.  
+Output  
+Write to the output file the total illumination of the fence rounded to the second digit after the decimal point.  
+Sample Input  
+0.5 1.7 3  
+1.0 3.0  
+2.0 -1.0  
+-4.0 -1.0  
+Sample Output  
+5.34  
+  
+题目名字是fence，让我想起了悲剧的fence4……记得fence4让我卡了1个多月……这次的fence也很悲剧……  
+题目是计算几何的，意思其实听简单的，分析过后，其实就是先判断点是不是在多边形里面，是的话就输出h*k*2*PI,不是的话就求出张角，然后输出h*k*张角。  
+判断点是否在多边形内部有经典算法，直接baidu。搞定之后就是求张角的问题了。话说计算几何这东西真麻烦……本来挺直观的几何，到了计算机里面反而变
+得这么麻烦了……想了半天想不到怎么弄……然后这会儿同寝室的星星正在Dota＋音乐……思绪更加乱了……最后想到一个很猥琐的办法……把每一条边的两个
+端点与原点连线的倾斜角都求出来，然后按照逆时针方向，前面的放在数组rad1，后面的放在rad2里面，这样最后的张角就因该是rad2逆时针最外的角
+度减去rad1中顺时针最外的角度。具体判断的时候可以把rad1里面的每一个点都减去一个很小的角度，再跟没一条边判断是否相交。只有最靠外的点才能够
+满足不与任何一条边相交。rad2也用类似的处理方法。  
+写好程序之后提交了一下，几乎是不抱希望的……事实也很凄惨，直接WA了……调试了一下最后还是决定找官方测试数据……找到官方测试数据之后调试，最终发现了3个错误。  
+错误1：忘记考虑一种伪包围的情况，也就是多边形的两个端点重合或者在同一条直线上，这时候利用经典算法判断结果是不包围，但是在判断张角的时候又会出错，解决办法就是在判断张角的时候特殊处理一下伪包围的情况。  
+错误2：尽然在判断是否相交的函数里面把一个x写成了y，泪奔……
+
+这时候提交了一次，发现还是WA，但是此时已经手动测试通过了官方的所有数据，于是在POJ里面换编译器为C＋＋，居然就AC了……当然不能就这样
+善罢甘休，于是引出了问题3：为什么C＋＋可以AC，G＋＋就不能……看到Discuz有人说把％lf换成％f就可以。于是就把所有的％lf都换成
+了％f，然后还是WA，这时候连C＋＋都WA了……又换回去，试着只改printf里面的％lf，然后发现AC了。也就是说在G＋＋里面printf必须
+用％f，而C＋＋里面都可以，但是scanf里面必须都是％lf……真复杂……于是baidu了一下，还真发现原因了……  
+地址：http://book.csdn.net/bookfiles/892/10089228074.shtml  
+问：有人告诉我不能在printf中使用%lf。为什么printf()用%f输出double型，而scanf却用%lf呢？  
+答：printf
+的%f说明符的确既可以输出float型又可以输出double型。根据“默认参数提升”规则（在
+printf这样的函数的可变参数列表中，不论作用域内有没有原型，都适用这一规则）float型会被提升为double型。因此printf()只会看
+到双精度数。参见问题15.2。
+
+对于scanf，情况就完全不同了，它接受指针，这里没有类似的类型提升。（通过指针）向float存储和向double存储大不一样，因此，scanf区别%f和%lf。  
+
+  
+居然还有这玄机……算是这道题目的另外一个收获吧……  
+
+
+
+
+
+
+
+

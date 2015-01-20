@@ -1,0 +1,105 @@
+---
+author: dashashi
+comments: true
+date: 2010-07-29 22:31:00+00:00
+layout: post
+slug: poj2908
+title: POJ2908
+wordpress_id: 415
+categories:
+- 解题报告
+tags:
+- ARM
+- poj
+---
+
+本来想找道A*的题目的，发现这题目直接不用A*就OK了，不过还是能够用上写的那个A*的类，干脆就做了，做出来结论是不能迷恋STL啊……
+
+先上题目
+
+Quantum
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:** 2000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 65536K
+</td></tr><tr >
+<td >**Total Submissions:** 2057
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:** 631
+</td></tr></tbody></table>
+
+Description
+
+At
+ the Institution for Bits and Bytes at University of Ramville, Prof.
+Jeremy Longword and his eight graduate students are investigating a
+brand new way of storing and manipulating data on magnetic disks for use
+ in hard drives. The method is based on letting quasimagnetic quantum
+operations operate on the sectors on the disk, and is, of course, safer
+andmore reliable than any earlier invented storage method. The use of
+each quantum operation costs a certain amount of energy, and the more
+energy the storage unit consumes, the warmer it will get. Therefore, you
+ and your research team, are assigned the task of writing a program
+that, given sets of possible quantum operations and their costs, can
+calculate the lowest possible total cost for transforming a set of data
+to the wanted result.
+
+On the disk, binary words of length 1 ≤ _L_
+ ≤ 20 are treated. The quantum operations are defined by strings of the
+same length as the binary words, and are built from the four letters N (does nothing), F (inverts one bit), S (sets a bit to 1), and C
+ (resets a bit to 0). Each letter in the string corresponds to an
+operation on the bit in the binary word at the same position. The binary
+ words are transformed one by one and the total energy cost for the
+transformation is calculated as the sum of the costs for the performed
+quantum operations.
+
+Input
+
+The input starts with a single positive integer _N_ ≤ 20 on a row, deciding the number of test cases that will follow. Then, for each of the test cases:
+
+  * One line containing three integers: _L_, _nop_ and _nw_ separated by one space.
+  * _L_ indicates the length of the binary words and the quantum operations.
+  * _nop_ (≤ 32) is the number of quantum operations that are available for use when transforming the binary words.
+  * _nw_ (≤ 20) is the number of binary words that are to be transformed in the current test case. 
+
+After this, _nop_ rows follows, each of them containing the definition of a quantum operation followed by the energy cost 0 ≤ _ci_ 1000 of carrying out the quantum operation. The definition and the cost are separated by a single space.
+
+Finally,
+ there are nw rows, each containing two binary words separated by a
+single space. The first of these words should, when possible, be
+transformed to the second using the quantum operations. The binary words
+ are expressed as sequences of 1’ s and 0’s. After these rows, the next
+test case follows, if there is any.
+
+Output
+
+Each
+ test case should produce a row containing a list of the energy costs of
+ transforming each of the binary words. The costs should be separated by
+ a single space and presented in the same order as the corresponding
+input. When there is no successful way of transforming a binary word,
+“NP”, meaning _not possible_ should be printed instead.
+
+Sample Input
+    
+    2<br></br>4 3 3<br></br>NFFN 1<br></br>NFNF 2<br></br>NNFN 4<br></br>0010 0100<br></br>0001 0010<br></br>0100 1000<br></br>4 4 5<br></br>CFSF 4<br></br>NNSS 3<br></br>FFFF 5<br></br>FNFN 6<br></br>1111 0000<br></br>1001 0110<br></br>0101 1000<br></br>1000 0011<br></br>0000 1001
+
+Sample Output
+    
+    1 3 NP<br></br>5 4 8 9 9<br></br><br></br>题目意思挺简单的，具体做的时候为了方便直接把一个操作分解为三步，根据位运算来搞，开三个数组分别记录and，or，xor，分别表示三中操作<br></br>然后搞的时候直接int t = (((now & opAnd[i]) ^ opXor[i]) | opOr[i]);<br></br>虽然没有估价函数，不过该有的CloseTable，OpenTable貌似还是用上了（PS：好像我这个程序里面把两个表的名字搞反了……）<br></br>做的时候OpenTable用了自己写的类，然后CloseTable开了一个map，然后TLE了……<br></br>大悲剧……<br></br>于是乎把CloseTable的map改成数组，继续TLE……<br></br>丫的，把Opentable里面的map也改成数组，然后AC了……396MS……速度还行- -<br></br>一不做二不休，干脆直接把OpenTable里面的Vector也改成数组，结果时间没变- -，内存也没变，效率基本一样……<br></br>仔细想想也是，vector是线性复杂度，map是log复杂度，改成数组就是线性复杂度了，规模在100W的时候加上常数比较大log是不行，不过线性复杂度影响就不大了- -<br></br>结论是规模大还是得写个哈希表啥的……map靠不住啊……<br></br>在想这题目能不能搞个估价函数提高下速度的……<br></br>贴代码先……<br></br>/*<br></br> * File:   main.cpp<br></br> * Author: Universe<br></br> *<br></br> * Created on 2010年7月25日, 下午6:32<br></br> */<br></br><br></br>#include <cstdlib><br></br>#include <map><br></br>#include <queue><br></br>#include <iostream><br></br>#include <vector><br></br>#include <functional><br></br>#include <cstdio><br></br><br></br>using namespace std;<br></br><br></br>class CCloseTable<br></br>{<br></br>int* keys;<br></br>int* vals;<br></br>int *map_kp;//key->pos<br></br>int size;<br></br>void adjust_up(int pos);<br></br>void adjust_down(int pos);<br></br>public:<br></br>void push(int key, int val);<br></br>//void modify(int key, int val);<br></br>void pop();<br></br>int top_key(){return keys[0];};<br></br>int top_val(){return vals[0];};<br></br>bool empty(){return size == 0;};<br></br>CCloseTable();<br></br>~CCloseTable();<br></br>};<br></br><br></br>CCloseTable::~CCloseTable()<br></br>{<br></br>delete map_kp;<br></br>delete keys;<br></br>delete vals;<br></br>}<br></br><br></br>CCloseTable::CCloseTable()<br></br>{<br></br>size = 0;<br></br>map_kp = new int[1100000];<br></br>keys = new int[1100000];<br></br>vals = new int[1100000];<br></br>for(int i=0; i<1100000; ++i)<br></br>map_kp[i] = -1;<br></br>}<br></br><br></br>void CCloseTable::push(int key, int val)<br></br>{<br></br>if(map_kp[key] == -1){<br></br>map_kp[key] = size;<br></br>keys[size] = key;<br></br>vals[size] = val;<br></br>size++;<br></br>adjust_up(size-1);<br></br>}else{<br></br>if(vals[map_kp[key]] <= val)<br></br>return;<br></br>vals[map_kp[key]] = val;<br></br>adjust_up(map_kp[key]);<br></br>}<br></br>}<br></br><br></br>void CCloseTable::pop()<br></br>{<br></br>size --;<br></br>//map_kp.erase(keys[0]);<br></br>map_kp[keys[0]] = -1;<br></br>keys[0] = keys[size];<br></br>vals[0] = vals[size];<br></br>map_kp[keys[0]] = 0;<br></br>adjust_down(0);<br></br>}<br></br><br></br>void CCloseTable::adjust_up(int pos)<br></br>{<br></br>int val = vals[pos];<br></br>int key = keys[pos];<br></br>int fa = (pos-1)/2;<br></br>while(pos > 0 && vals[fa] > val){<br></br>vals[pos] = vals[fa];<br></br>keys[pos] = keys[fa];<br></br>map_kp[keys[pos]] = pos;<br></br>pos = fa;<br></br>fa = (pos-1)/2;<br></br>}<br></br>vals[pos] = val;<br></br>keys[pos] = key;<br></br>map_kp[key] = pos;<br></br>}<br></br><br></br>void CCloseTable::adjust_down(int pos)<br></br>{<br></br>int val = vals[pos];<br></br>int key = keys[pos];<br></br>int rChild = (pos+1)*2;<br></br>while(rChild <= size){<br></br>if(rChild == size){<br></br>rChild --;<br></br>}else if(vals[rChild] > vals[rChild-1])<br></br>rChild --;<br></br>if(val <= vals[rChild])<br></br>break;<br></br>vals[pos] = vals[rChild];<br></br>keys[pos] = keys[rChild];<br></br>map_kp[keys[pos]] = pos;<br></br>pos = rChild;<br></br>rChild = (pos+1)*2;<br></br>}<br></br>vals[pos] = val;<br></br>keys[pos] = key;<br></br>map_kp[key] = pos;<br></br>}<br></br><br></br>int l, n, m, start, goal;<br></br>char s[30];<br></br>unsigned int opXor[31], opAnd[31], opOr[31], cost[31];<br></br>int ot[1100000];<br></br><br></br>void DoIt()<br></br>{<br></br>CCloseTable ct;<br></br>for(int i=0; i<1100000; ++i)<br></br>ot[i] = -1;<br></br>ct.push(start, 0);<br></br>while(!ct.empty() && ot[goal] == -1){<br></br>int now = ct.top_key();<br></br>int costNow = ct.top_val();<br></br>ct.pop();<br></br>ot[now] = costNow;<br></br>for(int i=0; i<n; ++i){<br></br>int t = (((now & opAnd[i]) ^ opXor[i]) | opOr[i]);<br></br>if(ot[t] != -1)<br></br>continue;<br></br>ct.push(t, costNow + cost[i]);<br></br>}<br></br>}<br></br>if(ot[goal] == -1)<br></br>printf("NP");<br></br>else<br></br>printf("%d", ot[goal]);<br></br>}<br></br><br></br>void Solve()<br></br>{<br></br>scanf("%d%d%d", &l, &n, &m);<br></br>for(int i=0; i<n; ++i){<br></br>scanf("%s%d", s, &cost[i]);<br></br>opXor[i] = opOr[i] = 0;<br></br>opAnd[i] = 0xffffffff;<br></br>for(int j=0; j<l; ++j){<br></br>opXor[i] <<=1;<br></br>opAnd[i] <<=1;<br></br>opOr[i] <<=1;<br></br>if(s[j] == 'F')<br></br>opXor[i] |= 1;<br></br>if(s[j] == 'S')<br></br>opOr[i] |= 1;<br></br>if(s[j] != 'C')<br></br>opAnd[i] |= 1;<br></br>}<br></br>}<br></br>for(int i=0; i<m; ++i){<br></br>scanf("%s", s);<br></br>start = 0;<br></br>for(int j=0; j<l; ++j)<br></br>start = (start << 1)|(s[j]-'0');<br></br>scanf("%s", s);<br></br>goal = 0;<br></br>for(int j=0; j<l; ++j)<br></br>goal = (goal << 1)|(s[j]-'0');<br></br>DoIt();<br></br>if(i == m-1)<br></br>printf("\n");<br></br>else<br></br>printf(" ");<br></br>}<br></br>}<br></br><br></br>int main(int argc, char** argv)<br></br>{<br></br>int nCase;<br></br>scanf("%d", &nCase);<br></br>while(nCase --){<br></br>Solve();<br></br>}<br></br>}<br></br><br></br><br></br>
+
+
+
+
+
+

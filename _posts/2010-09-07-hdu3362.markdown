@@ -1,0 +1,34 @@
+---
+author: dashashi
+comments: true
+date: 2010-09-07 13:13:00+00:00
+layout: post
+slug: hdu3362
+title: HDU3362
+wordpress_id: 407
+categories:
+- 解题报告
+tags:
+- acm
+- php
+---
+
+http://acm.hdu.edu.cn/showproblem.php?pid=3362
+
+  
+
+
+最近感觉很悲剧啊……话说这道题目其实也不难，就是一个状态压缩DP，阶段划分还是挺明显的，不过有一个特殊情况就是只有一个点的时候要注意
+
+没有想到特殊情况还算情有可原吧，没想到用DP就是太悲剧了……马上就网赛了- -
+
+大概说一下方法吧
+
+18个点，总共就是2^18个状态，然后划分阶段就是以已经固定的点的个数划分，具体实现的时候可以用类BFS  
+
+
+
+
+
+
+

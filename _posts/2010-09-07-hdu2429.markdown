@@ -1,0 +1,38 @@
+---
+author: dashashi
+comments: true
+date: 2010-09-07 23:07:00+00:00
+layout: post
+slug: hdu2429
+title: HDU2429
+wordpress_id: 406
+categories:
+- 解题报告
+tags:
+- acm
+- php
+---
+
+http://acm.hdu.edu.cn/showproblem.php?pid=2429
+
+  
+
+
+前年一场网络赛的题目- -
+
+单单写出递推式其实挺简单的，不过N很大，显然不可能递推
+
+不知道怎么的突然脑子灵机一动想到了用矩阵- -
+
+把递推式用举证表示出来
+
+然后利用二分加速幂……
+
+具体做的时候脑子不够清晰，细节感觉把握不住，感觉答案在面前晃啊晃的就是抓不住，WA了11次……悲情的……不过总算是做出来了……  
+
+
+
+
+
+
+

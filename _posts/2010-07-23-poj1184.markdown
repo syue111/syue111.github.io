@@ -1,0 +1,238 @@
+---
+author: dashashi
+comments: true
+date: 2010-07-23 18:21:00+00:00
+layout: post
+slug: poj1184
+title: POJ1184
+wordpress_id: 416
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+
+
+
+
+
+
+NOI的题目，历经千辛万苦终于AC了……完全不在状态，今天下午写了一个下午写出来N多bug……各种悲剧……终于过了……写篇日志留念一下……上题目先- -
+
+
+
+
+聪明的打字员
+
+
+
+<table align="center" >
+<tbody >
+<tr >
+
+<td >**Time Limit:** 1000MS
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Memory Limit:** 65536K
+</td>
+</tr>
+<tr >
+
+<td >**Total Submissions:** 3232
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Accepted:** 662
+</td>
+</tr>
+</tbody>
+</table>
+
+
+Description
+
+
+
+
+阿兰是某机密部门的打字员，她现在接到一个任务：需要在一天之内输入几百个长度固定为6的密码。当然，她希望输入的过程中敲击键盘的总次数越少越好。
+
+
+不幸的是，出于保密的需要，该部门用于输入密码的键盘是特殊设计的，键盘上没有数字键，而只有以下六个键：Swap0, Swap1, Up,
+Down, Left,
+Right，为了说明这6个键的作用，我们先定义录入区的6个位置的编号，从左至右依次为1，2，3，4，5，6。下面列出每个键的作用：
+
+Swap0：按Swap0，光标位置不变，将光标所在位置的数字与录入区的1号位置的数字（左起第一个数字）交换。如果光标已经处在录入区的1号位置，则按Swap0键之后，录入区的数字不变；
+
+Swap1：按Swap1，光标位置不变，将光标所在位置的数字与录入区的6号位置的数字（左起第六个数字）交换。如果光标已经处在录入区的6号位置，则按Swap1键之后，录入区的数字不变；
+
+Up：按Up，光标位置不变，将光标所在位置的数字加1（除非该数字是9）。例如，如果光标所在位置的数字为2，按Up之后，该处的数字变为3；如果该处数字为9，则按Up之后，数字不变，光标位置也不变；
+
+Down：按Down，光标位置不变，将光标所在位置的数字减1（除非该数字是0），如果该处数字为0，则按Down之后，数字不变，光标位置也不变；
+
+Left：按Left，光标左移一个位置，如果光标已经在录入区的1号位置（左起第一个位置）上，则光标不动；
+
+Right：按Right，光标右移一个位置，如果光标已经在录入区的6号位置（左起第六个位置）上，则光标不动。
+
+当然，为了使这样的键盘发挥作用，每次录入密码之前，录入区总会随机出现一个长度为6的初始密码，而且光标固定出现在1号位置上。当巧妙地使用上述六个特殊键之后，可以得到目标密码，这时光标允许停在任何一个位置。
+
+现在，阿兰需要你的帮助，编写一个程序，求出录入一个密码需要的最少的击键次数。
+
+
+Input
+
+
+
+
+仅一行，含有两个长度为6的数，前者为初始密码，后者为目标密码，两个密码之间用一个空格隔开。
+
+
+
+
+Output
+
+
+
+
+仅一行，含有一个正整数，为最少需要的击键次数。
+
+
+
+
+Sample Input
+
+
+
+
+    
+    123456 654321
+
+
+
+
+Sample Output
+
+
+
+
+    
+    11
+    
+
+
+题目的意思其实很简单- -而且是中文的- -
+这道题目其实是很久以前看英文吐血然后就找中文题做，一开始以为这道题目比较简单，是个软柿子，拿过来捏的，然后放了很久都没做出来……前天发现有一道题目没AC的，本着不留Faild的精神，决定A掉
+一开始拿到题目，想着算上光标位置的话，总共只有6000000种状态，然后就想直接BFS……然后果断TLE了……看了Discuss里面各种说法，A*啊，优化啊啥的
+试着优化了一下感觉搞不定。
+于是决定趁机学一下A*……然后完全不知道咋下手……
+突然发现了一个好的优化办法，把数字增减跟移动分开考虑，先算出把当前排列变成所有其他排列需要的步数，然后再算出把那个状态变到需要的状态的加减的步数
+写了个累死累活，终于写出来了- -由于移动也需要步数，一开始想的是把能够移动到的最右边的那个位置记下来，这样子有6！*6*6个情况，能够接受
+后来发现有个bug，999999到999998这种情况就没法过了……大悲剧……
+后来想到把能够改的每一位都做一个标记，然后具体写的时候由于是在刚才那个基础上面改，所以就搞了很别扭的位运算- -，把二进制高6位用于记录移动过程中有没有经过某位，然后低24位当10进制记录状态……混合进制……最后终于艰难的AC了……
+途中中bug无数，没想到一个80多行的程序能有这么多bug……
+其中由于位运算优先级导致的bug和重写一大堆
+由于思路不清晰导致的数字写错bug一大堆
+手误bug一大堆
+思路错误小bug一大堆
+算法错误大bug一大堆……
+好TM悲剧的一道题目……
+不过也算是AC了……
+另外左移操作是不能少的，比如下面这个数据
+000159 000591
+贴上代码……
+
+
+    
+    #include <stdio.h>
+    #include <queue>
+    #include <set>
+    #include <map>
+    #include <stdlib.h>
+    
+    using namespace std;
+    
+    unsigned int mask[] = {100000, 10000, 1000, 100, 10, 1, 1000000, 10000000};
+    unsigned int couldMask[] = {0x80000000, 0x40000000, 0x20000000, 0x10000000, 0x8000000, 0x4000000};
+    
+    map<unsigned int, unsigned int> Status;//值表示花费的步数，不存在表示未搜索到
+    queue<unsigned int> bfs_queue;
+    unsigned int ans, start, goal;
+    
+    inline int Getpos(unsigned int status, unsigned int pos)
+    {
+    	return ((status & 0xffffff) / mask[pos]) % 10;
+    }
+    
+    unsigned int CheckAns(unsigned int status)
+    {
+    	unsigned int total;
+    	total = Status[status];
+    	for(unsigned int i=0; i<6; ++i)
+    	if(status & couldMask[i]){
+    		total += abs(Getpos(status, i)- Getpos(goal, i));
+    	}else if(Getpos(status, i)!= Getpos(goal, i))
+    	return false;
+    	if(total < ans)
+    	ans = total;
+    }
+    
+    unsigned int swap(unsigned int status, unsigned int p1, unsigned int p2)
+    {
+    	return status + Getpos(status, p1)*(mask[p2]-mask[p1])
+    	+ Getpos(status, p2)*(mask[p1]-mask[p2]);
+    }
+    
+    void Add(unsigned int k, unsigned int step)
+    {
+    	if(Status.find(k) == Status.end()){
+    		Status[k] = step;
+    		bfs_queue.push(k);
+    		CheckAns(k);
+    	}
+    }
+    
+    int main()
+    {
+    	unsigned int t;
+    	scanf("%d%d", &start, &goal);
+    	Status[start] = 0;
+    	start |= couldMask[0];
+    	bfs_queue.push(start);
+    	ans = 100000000;
+    	CheckAns(start);
+    
+    	while(!bfs_queue.empty()){
+    		unsigned int now = bfs_queue.front();
+    		bfs_queue.pop();
+    		unsigned int step = Status[now]+1;
+    		if(step > ans)
+    		break;
+    		if(Getpos(now, 6) > 0){
+    			t = now - mask[6];
+    			Add(t, step);
+    			t = swap(now, 0, Getpos(now, 6));
+    			t |= couldMask[0];
+    			Add(t, step);
+    		}
+    		if(Getpos(now, 6) < 5){
+    			t = now + mask[6];
+    			t |= couldMask[Getpos(t, 6)];
+    			Add(t, step);
+    			t = swap(now, 5, Getpos(now, 6));
+    			t |= couldMask[5];
+    			Add(t, step);
+    		}
+    	}
+    	printf("%d\n", ans);
+    }
+
+
+
+
+
+

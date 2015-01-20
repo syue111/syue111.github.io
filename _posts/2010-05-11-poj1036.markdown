@@ -1,0 +1,104 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-11 01:32:00+00:00
+layout: post
+slug: poj1036
+title: POJ1036
+wordpress_id: 429
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+上题目……本来以为这道题目不用写个日志了的……最后还是悲剧……动规做得少了最近……竟然范这种低级错误……  
+
+
+Gangsters
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:** 1000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 10000K
+</td></tr><tr >
+<td >**Total Submissions:** 5302
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:** 1492
+</td></tr></tbody></table>
+
+Description
+
+N
+gangsters are going to a restaurant. The i-th gangster comes at the
+time Ti and has the prosperity Pi. The door of the restaurant has K+1
+states of openness expressed by the integers in the range [0, K]. The
+state of openness can change by one in one unit of time; i.e. it either
+opens by one, closes by one or remains the same. At the initial moment
+of time the door is closed (state 0). The i-th gangster enters the
+restaurant only if the door is opened specially for him, i.e. when the
+state of openness coincides with his stoutness Si. If at the moment of
+time when the gangster comes to the restaurant the state of openness is
+not equal to his stoutness, then the gangster goes away and never
+returns.
+  
+The restaurant works in the interval of time [0, T].
+  
+The goal is to gather the gangsters with the maximal total
+prosperity in the restaurant by opening and closing the door
+appropriately.
+  
+
+
+Input
+
+?The
+first line of the input file contains the values N, K, and T, separated
+by spaces. (1 <= N <= 100 ,1 <= K <= 100 ,0 <= T <=
+30000 )
+  
+?The second line of the input file contains the moments of time
+when gangsters come to the restaurant T1, T2, ..., TN, separated by
+spaces. ( 0 <= Ti <= T for i = 1, 2, ..., N)
+  
+?The third line of the input file contains the values of the
+prosperity of gangsters P1, P2, ..., PN, separated by spaces. ( 0 <=
+Pi <= 300 for i = 1, 2, ..., N)
+  
+?The forth line of the input file contains the values of the
+stoutness of gangsters S1, S2, ..., SN, separated by spaces. ( 1 <=
+Si <= K for i = 1, 2, ..., N)
+  
+All values in the input file are integers.
+  
+
+
+Output
+
+Print
+to the output file the single integer ?the maximal sum of prosperity of
+gangsters in the restaurant. In case when no gangster can enter the
+restaurant the output should be 0.
+
+Sample Input
+    
+    4 10 20<br></br>10 16 8 16<br></br>10 11 15 1<br></br>10 7 1 8<br></br>
+
+Sample Output
+    
+    26<br></br><br></br>题目意思有点难懂……感觉……看了好几次才看懂到底啥意思，英语水平不够还……其实意思就是门的值没一个time unit可以＋1，－1或者不变，然后对于某一个客人，必须在门的值跟他自己所拥有的一个值相等时才进门，要求总体的P相加最大……典型的动规……当即就想到了方程，直接写程序……写了20分钟吧……感觉最近用VIM写了这么多个程序，速度快了些了……<br></br>然后提交，发现尽然MLE了……仔细一看，发现数组是开大了……于是改成循环数组，循环数组已经很熟了反正……改好再提交，尽然WA了……看了好几遍代码……没有发现错误……最后看时间不早了，就去了Discuss……把里面的测试数据都试了一遍，还是没有找到错误……然后发现这道题目跟上次下的官方数据是一个系列的……于是就拿官方数据测试……发现问题所在了……<br></br>问题在于初始化的时候没有把k＋1的位置初始化，然后在动规的时候又没有检查边界……<br></br>这个问题其实我有两次机会可以避免……第一是初始化的时候……不知道咋想的没有初始化完……话说数组都特意开大了的……以后初始化一定多初始化几位……<br></br>第二是在动规的时候其实可以检查一下边界……对于下界我特意注意过了……对于上界竟然忽略了……不知道当时写代码的时候怎么想的……其实考虑过可能会出问题……但是就是没有去动它……想着少写几行代码……<br></br>不过话说回来……一开始那种单独写一个循环特殊处理下界的办法其实挺dirty的……虽然速度会快一点……dirty的代价就是没有考虑周全……哎……<br></br>话说这么简单的题目……悲剧……多做做题目应该会好些<br></br>
+
+
+
+
+
+

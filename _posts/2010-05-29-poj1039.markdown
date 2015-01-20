@@ -1,0 +1,100 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-29 14:51:00+00:00
+layout: post
+slug: poj1039
+title: POJ1039
+wordpress_id: 423
+categories:
+- 解题报告
+tags:
+- poj
+- RP
+---
+
+POJ1039，又一道计算几何，又一道悲剧……
+
+先上题目……
+
+Pipe
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:**
+ 1000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 10000K
+</td></tr><tr >
+<td >**Total
+ Submissions:** 3692
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:**
+1117
+</td></tr></tbody></table>
+
+Description
+
+The GX Light Pipeline Company started to
+prepare bent pipes for the new transgalactic light pipeline. During the
+design phase of the new pipe shape the company ran into the problem of
+determining how far the light can reach inside each component of the
+pipe. Note that the material which the pipe is made from is not
+transparent and not light reflecting.
+  
+![](http://acm.pku.edu.cn/JudgeOnline/images/1039/pipe.gif)
+  
+Each pipe component consists of many straight pipes connected
+tightly together. For the programming purposes, the company developed
+the description of each component as a sequence of points [x1; y1], [x2;
+ y2], . . ., [xn; yn], where x1 < x2 < . . . xn . These are the
+upper points of the pipe contour. The bottom points of the pipe contour
+consist of points with y-coordinate decreased by 1. To each upper point
+[xi; yi] there is a corresponding bottom point [xi; (yi)-1] (see picture
+ above). The company wants to find, for each pipe component, the point
+with maximal x-coordinate that the light will reach. The light is
+emitted by a segment source with endpoints [x1; (y1)-1] and [x1; y1]
+(endpoints are emitting light too). Assume that the light is not bent at
+ the pipe bent points and the bent points do not stop the light beam. 
+
+Input
+
+The input file
+contains several blocks each describing one pipe component. Each block
+starts with the number of bent points 2 <= n <= 20 on separate
+line. Each of the next n lines contains a pair of real values xi, yi
+separated by space. The last block is denoted with n = 0. 
+
+Output
+
+The output file
+contains lines corresponding to blocks in input file. To each block in
+the input file there is one line in the output file. Each such line
+contains either a real value, written with precision of two decimal
+places, or the message Through all the pipe.. The real value is the
+desired maximal x-coordinate of the point where the light can reach from
+ the source for corresponding pipe component. If this value equals to
+xn, then the message Through all the pipe. will appear in the output
+file. 
+
+Sample Input
+    
+    4<br></br>0 1<br></br>2 2<br></br>4 1<br></br>6 4<br></br>6<br></br>0 1<br></br>2 -0.6<br></br>5 -4.45<br></br>7 -5.57<br></br>12 -10.8<br></br>17 -16.55<br></br>0<br></br>
+
+Sample Output
+    
+    4.67<br></br>Through all the pipe.<br></br>很久没做题目了……2个礼拜前其实就看到了，昨晚决定把这题目过了先。<br></br>题目意思是有一大堆管子，从管口有一个线光源，然后问你光源最大能够到达的点的x坐标……<br></br>话说一开始一直以为是距离……而且天杀的样例数据居然还能对……<br></br>那天看了计算几何的一些东西，里面提到最烦的3种题目……格式输出，模拟还有计算几何……感觉很有道理……<br></br>计算几何之所以烦，一方面是很多直观的东西到了计算机里面反而很麻烦……不过如果有现成的算法其实倒也不是很麻烦，最烦的地方在于计算几何的特殊情况太恶心了。<br></br>比如想要表示一条直线，因为可能垂直或者平行，所以只能用标准式，不能用点斜式……然后求线段相交的情况就有是否在某个端点相交，是否恰好共端点……还有重合……疯了疯了……<br></br>如果只是函数里面考虑这些东西还好，有模板抄，万恶的是题目里面还要考虑这种特殊情况，然后……疯了疯了<br></br>突然发现，我做过的几道计算几何的题目都是要考虑这种东西的……或者说是我想到的算法都是要考虑这种东西的……然后每次到最后我都是用牺牲一些精度来获取答案……不知道是不是好事……<br></br>拿这道题目来说吧，我的算法是枚举每两个端点对，对于符合条件的直线，肯定通过某两个端点……直观的想想是这样子的……<br></br>然后过这两个端点做直线，测试是否与入口的线光源相交，如果相交就从交点出发，做一条射线（光线），之后枚举每一条边，看是否相交，如果有相交就取交点最小的x值，如果没有就是可以通过所有管子。<br></br>具体实现的时候有一种很恶心的情况，在内部的时候，某个交点是不会把光线挡住的，这样子其实还不麻烦，但是问题是就可能出现光线从相交的地方出去了……然后分情况考虑又恶心的要死……<br></br>最后我就在判断相交的时候把每一条上面的变往上移一个eps，每一条下面的边往下移一个eps……然后就不用考虑了……牺牲了一点点精度……<br></br>贴代码……<br></br>#include <cstdio><br></br>#include <cmath><br></br><br></br>using namespace std;<br></br><br></br>const double eps = 1e-9;<br></br><br></br>struct POINT  <br></br>{<br></br>double x, y;<br></br>POINT(){<br></br>x = y = 0;<br></br>}<br></br>POINT(double xx, double yy){<br></br>x = xx;y=yy;<br></br>}<br></br>};<br></br><br></br>struct LINESEG<br></br>{<br></br>POINT p1, p2;<br></br>LINESEG(){<br></br><br></br>}<br></br>LINESEG(POINT pp1, POINT pp2){<br></br>p1 = pp1;p2 = pp2;<br></br>}<br></br>};<br></br><br></br>struct LINE<br></br>{<br></br>double a, b, c;<br></br>};<br></br><br></br>double Multiply(POINT sp,POINT ep,POINT op)<br></br>{<br></br>return((sp.x-op.x)*(ep.y-op.y)-(sp.y-op.y)*(ep.x-op.x));<br></br>}<br></br><br></br>double max(double a, double b)<br></br>{<br></br>return a>b?a:b;<br></br>}<br></br><br></br>double min(double a, double b)<br></br>{<br></br>return a<b?a:b;<br></br>}<br></br><br></br><br></br>LINE MakeLine(POINT p1, POINT p2)<br></br>{<br></br>LINE tl;<br></br>int sign = 1;<br></br>tl.a = p2.y - p1.y;<br></br>if(tl.a < 0){<br></br>sign = -1;<br></br>tl.a = sign*tl.a;<br></br>}<br></br>tl.b = sign*(p1.x - p2.x);<br></br>tl.c = sign*(p1.y*p2.x - p1.x*p2.y);<br></br>return tl;<br></br>}<br></br><br></br>LINE MakeLine(LINESEG l)<br></br>{<br></br>return MakeLine(l.p1, l.p2);<br></br>}<br></br><br></br>bool Lineintersect(LINE l1, LINE l2, POINT &p)<br></br>{<br></br>double d = l1.a*l2.b - l2.a*l1.b;<br></br>if(abs(d) < eps)<br></br>return false;<br></br>p.x = (l2.c*l1.b-l1.c*l2.b)/d;<br></br>p.y = (l2.a*l1.c - l1.a*l2.c)/d;<br></br>return true;<br></br>}<br></br><br></br>bool Intersect(LINESEG l1, LINESEG l2, POINT &pInterSect)<br></br>{<br></br>if ((max(l1.p1.x, l1.p2.x) > min(l2.p1.x, l2.p2.x))&&//快速排斥实验<br></br>(max(l1.p1.y, l1.p2.y) > min(l2.p1.y, l2.p2.y))&&<br></br>(max(l2.p1.x, l2.p2.x) > min(l1.p1.x, l1.p2.x))&&<br></br>(max(l2.p1.y, l2.p2.y) > min(l1.p1.y, l1.p2.y))&&<br></br>(Multiply(l1.p1, l2.p1, l2.p2)*Multiply(l1.p2, l2.p1, l2.p2) <= 0)&&//跨立实验<br></br>(Multiply(l2.p1, l1.p1, l1.p2)*Multiply(l2.p2, l1.p1, l1.p2) <= 0)){<br></br>Lineintersect(MakeLine(l1.p1, l1.p2), MakeLine(l2.p1, l2.p2), pInterSect);<br></br>return true;<br></br>}else{<br></br>return false;<br></br>}<br></br>}<br></br><br></br>bool online(LINESEG l,POINT p) <br></br>{ <br></br>return( (Multiply(l.p2,p,l.p1)==0) &&( ( (p.x-l.p1.x)*(p.x-l.p2.x)<=0 )&&( (p.y-l.p1.y)*(p.y-l.p2.y)<=0 ) ) ); <br></br>} <br></br><br></br>bool Intersect_A(LINESEG u,LINESEG v, POINT p) <br></br>{ <br></br>if((Intersect(u,v, p))&& <br></br>(!online(u,v.p1))&& <br></br>(!online(u,v.p2))&& <br></br>(!online(v,u.p1))&& <br></br>(!online(v,u.p2))){<br></br>Intersect(u, v, p);<br></br>return true;<br></br>} <br></br>else{<br></br>return false;<br></br>}<br></br>} <br></br><br></br>LINESEG MakeSeg(POINT p1, POINT p2, int flag)//flag为0，1，2，3时分别不扩展，扩展p1到p2方向，扩展p2到p1方向，都扩展<br></br>{<br></br>LINESEG ret;<br></br>ret.p1 = p1;<br></br>ret.p2 = p2;<br></br>double d = 0;<br></br>if(p1.x - p2.x != 0)<br></br>d = abs(1e6/(p1.x-p2.x));<br></br>if(d == 0 && (p1.y - p2.y != 0))<br></br>d = abs(1e6/(p1.y-p2.y));<br></br>if(flag & 1){<br></br>ret.p2.x += (p2.x-p1.x)*d;<br></br>ret.p2.y += (p2.y-p1.y)*d;<br></br>}<br></br>if(flag & 2){<br></br>ret.p1.x += (p1.x-p2.x)*d;<br></br>ret.p1.y += (p1.y-p2.y)*d;<br></br>}<br></br>return ret;<br></br>}<br></br><br></br>double sqr(double a)<br></br>{<br></br>return a*a;<br></br>}<br></br><br></br>double Distance(POINT p1, POINT p2)<br></br>{<br></br>return sqrt(sqr(p1.x-p2.x)+sqr(p2.y-p2.y));<br></br>}<br></br><br></br>POINT p[50];<br></br>int n;<br></br><br></br>void Init()<br></br>{<br></br>for (int i=1; i<=n; i++){<br></br>scanf("%lf%lf", &p[i].x, &p[i].y);<br></br>}<br></br>for (int i=n+1; i<=2*n; i++){<br></br>p[i] = p[i-n];<br></br>p[i].y -= 1;<br></br>}<br></br>}<br></br><br></br>double Check(LINESEG ray)<br></br>{<br></br>double ret = 1e6;<br></br>POINT pIntersect;<br></br>for(int i=1; i<=n-1; i++){<br></br>LINESEG l(p[i], p[i+1]);<br></br>l.p1.y += eps;<br></br>l.p2.y += eps;<br></br>if(Intersect(ray, l, pIntersect)){<br></br>ret = min(ret, pIntersect.x);<br></br>}<br></br>l.p1.y -= 1+2*eps;<br></br>l.p2.y -= 1+2*eps;<br></br>if(Intersect(ray, l, pIntersect)){<br></br>ret = min(ret, pIntersect.x);<br></br>}<br></br>}<br></br>return ret;<br></br>}<br></br><br></br>void Solve()<br></br>{<br></br>int i, j, k;<br></br>LINESEG ray;<br></br>double ans;<br></br>ans = -1e10;<br></br>LINESEG lTest;<br></br>lTest.p1 = p[1];<br></br>lTest.p2 = p[n+1];<br></br>lTest.p1.y += eps;<br></br>lTest.p2.y -= eps;<br></br>for(i=1; i<=2*n; i++)<br></br>for(j=i+1; j<=2*n; j++){<br></br>ray = MakeSeg(p[i], p[j], 3);<br></br>if(!Intersect(lTest, ray, p[0]))<br></br>continue;<br></br>ray = MakeSeg(p[0], p[j], 1);<br></br>if(abs(p[0].x - p[j].x)<eps){<br></br>if(abs(p[0].x - p[i].x)<eps)<br></br>continue;<br></br>ray = MakeSeg(p[0], p[i], 1);<br></br>}<br></br>double ret = Check(ray);<br></br>if(ret > ans)<br></br>ans = ret;<br></br>if(ans == 1e6){<br></br>printf("Through all the pipe.\n");<br></br>return ;<br></br>}<br></br>}<br></br>printf("%.2f\n", ans);<br></br>}<br></br><br></br>int main()<br></br>{<br></br>while(true){<br></br>scanf("%d", &n);<br></br>if(n <= 0)<br></br>break;<br></br>Init();<br></br>Solve();<br></br>}<br></br>return 0;<br></br>}<br></br><br></br>代码里面有很多函数没用到，主要是程序前后改了很多次……计算几何用到的那些函数都是抄的模板。<br></br>
+
+
+
+
+
+

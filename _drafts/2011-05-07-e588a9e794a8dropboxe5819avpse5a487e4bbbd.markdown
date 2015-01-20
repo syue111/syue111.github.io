@@ -1,0 +1,21 @@
+---
+author: dashashi
+comments: false
+date: 2011-05-07 17:23:02+00:00
+layout: post
+slug: '%e5%88%a9%e7%94%a8dropbox%e5%81%9avps%e5%a4%87%e4%bb%bd'
+title: 利用Dropbox做VPS备份
+wordpress_id: 1193
+categories:
+- Linux
+tags:
+- dropbox
+- ftp
+- google
+- vps
+- 备份
+---
+
+前两天折腾了下Google Storage，感觉这东西开放的接口比较丰富，从美国VPS访问的话速度也很给给力，空间也很大（100G）不过传送大量小文件的时候存在跟FTP一样的问题，速度很慢，而且上传同一个文件的时候要先上传到服务器再进行比对，因此不适合用来做网站备份，比较适合用来做类似图片空间的东西
+
+于是又折腾了下dropbox，关于Dropbox的介绍我就不说了- -|百度去~话说这东西在国内被伟大的GFW墙奸了- -|不过https网

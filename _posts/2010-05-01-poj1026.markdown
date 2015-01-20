@@ -1,0 +1,77 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-01 16:29:00+00:00
+layout: post
+slug: poj1026
+title: POJ1026
+wordpress_id: 433
+categories:
+- 解题报告
+tags:
+- poj
+- RP
+---
+
+Description
+
+Bob and
+Alice started to use a brand-new encoding scheme. Surprisingly it is
+not a Public Key Cryptosystem, but their encoding and decoding is based
+on secret keys. They chose the secret key at their last meeting in
+Philadelphia on February 16th, 1996. They chose as a secret key a
+sequence of n distinct integers, a1 ; . . .; an, greater than zero and
+less or equal to n. The encoding is based on the following principle.
+The message is written down below the key, so that characters in the
+message and numbers in the key are correspondingly aligned. Character
+in the message at the position i is written in the encoded message at
+the position ai, where ai is the corresponding number in the key. And
+then the encoded message is encoded in the same way. This process is
+repeated k times. After kth encoding they exchange their message.
+  
+
+  
+The length of the message is always less or equal than n. If the
+message is shorter than n, then spaces are added to the end of the
+message to get the message with the length n.
+  
+
+  
+Help Alice and Bob and write program which reads the key and then a
+sequence of pairs consisting of k and message to be encoded k times and
+produces a list of encoded messages.   
+
+
+Input
+
+The
+input file consists of several blocks. Each block has a number 0 < n
+<= 200 in the first line. The next line contains a sequence of n
+numbers pairwise distinct and each greater than zero and less or equal
+than n. Next lines contain integer number k and one message of ascii
+characters separated by one space. The lines are ended with eol, this
+eol does not belong to the message. The block ends with the separate
+line with the number 0. After the last block there is in separate line
+the number 0. 
+
+Output
+
+Output
+is divided into blocks corresponding to the input blocks. Each block
+contains the encoded input messages in the same order as in input file.
+Each encoded message in the output file has the lenght n. After each
+block there is one empty line. 
+
+Sample Input
+    
+    10<br></br>4 5 3 7 2 8 1 6 10 9<br></br>1 Hello Bob<br></br>1995 CERC<br></br>0<br></br>0<br></br>
+
+Sample Output
+    
+    BolHeol  b<br></br>C RCE<br></br><br></br>题目的难点在于K很大，直接想到利用二进制思想，先求出每一位经过2^k次加密所得的位置，然后再求经过t次加密所得的位置，Discuz里面很多人提到直接求出每一位多少次能够循环，然后再取模，感觉比我的方法写起来要方便不少应该……<br></br>做的时候出现了几个小错误，都是出在预处理。一个是在预处理的时候下标顺序出错了，应该把j放在外循环。另外一个是不知道怎么的昏头了预处理的时候折腾出来一个i-1，囧……<br></br>贴代码：<br></br>#include <stdio.h><br></br>#include <string.h><br></br><br></br>int a[220][40];//a[i][j]表示第i个字母经过2^j次加密后所在的位置<br></br>int b[220], c[220];<br></br><br></br>int main(){<br></br>    int n, i, j, time;<br></br>    char s[220], tmp[220];<br></br>    i = 1;<br></br>    while(1){<br></br>        scanf("%d", &n);<br></br>        if(n <= 0)<br></br>            return 0;<br></br>        memset(a, 0, sizeof(a));<br></br>        memset(b, 0, sizeof(b));<br></br>        for(i=1; i<=n; i++)<br></br>            scanf("%d", &b[i]);<br></br>        for(i=1; i<=n; i++){<br></br>            a[b[i]][0] = i;<br></br>        }<br></br>for(j=1; j<40; j++){<br></br>            for(i=1; i<=n; i++){<br></br>                a[i][j] = a[a[i][j-1]][j-1];<br></br>time = i;<br></br>            }<br></br>        }<br></br>        while(1){<br></br>            scanf("%d", &time);<br></br>            if(time <= 0)<br></br>                break;<br></br>            gets(s);<br></br>            for(i=strlen(s); i<=n; i++)<br></br>                s[i] = ' ';<br></br>            s[i+1] = '\0';<br></br>            for(i=1; i<=n; i++)<br></br>                c[i] = i;<br></br>            j = 0;<br></br>            while(time > 0){<br></br>                if(time % 2 > 0){<br></br>                    for(i=1; i<=n; i++)<br></br>                        c[i] = a[c[i]][j];<br></br>                }<br></br>time = time / 2;<br></br>j++;<br></br>}<br></br>for (i = 1; i <= n; i++) {<br></br>tmp[i-1] = s[c[i]];<br></br>//printf("%c", s[c[i]]);<br></br>}<br></br>tmp[i-1] = '\0';<br></br>printf("%s\n", tmp);<br></br>//printf("\n");<br></br>}<br></br>printf("\n");<br></br>}<br></br>}<br></br><br></br>
+
+
+
+
+
+

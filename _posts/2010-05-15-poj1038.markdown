@@ -1,0 +1,101 @@
+---
+author: dashashi
+comments: true
+date: 2010-05-15 03:23:00+00:00
+layout: post
+slug: poj1038%ef%bc%8c%e7%bb%88%e4%ba%8e%e8%bf%87%e4%ba%86%e2%80%a6%e2%80%a6
+title: POJ1038，终于过了……
+wordpress_id: 427
+categories:
+- 解题报告
+tags:
+- poj
+- RP
+---
+
+POJ1038……断断续续做了4天……本身由于这段时间有点事情，时间不太多，再加上这题目确实比较麻烦……
+
+Bugs Integrated, Inc.
+
+
+
+
+<table align="center" ><tbody ><tr >
+<td >**Time Limit:** 15000MS
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Memory Limit:** 30000K
+</td></tr><tr >
+<td >**Total Submissions:** 4660
+</td>
+<td width="10px" >  
+
+</td>
+<td >**Accepted:** 1641
+</td></tr><tr >
+<td colspan="3" style="color: rgb(14, 173, 0);" align="center" >**Case Time Limit:** 5000MS
+</td></tr></tbody></table>
+
+Description
+
+Bugs
+Integrated, Inc. is a major manufacturer of advanced memory chips. They
+are launching production of a new six terabyte Q-RAM chip. Each chip
+consists of six unit squares arranged in a form of a 2*3 rectangle. The
+way Q-RAM chips are made is such that one takes a rectangular plate of
+silicon divided into N*M unit squares. Then all squares are tested
+carefully and the bad ones are marked with a black marker.
+  
+![](http://acm.pku.edu.cn/JudgeOnline/images/1038/bugs.gif)
+  
+Finally, the plate of silicon is cut into memory chips. Each chip
+consists of 2*3 (or 3*2) unit squares. Of course, no chip can contain
+any bad (marked) squares. It might not be possible to cut the plate so
+that every good unit square is a part of some memory chip. The
+corporation wants to waste as little good squares as possible.
+Therefore they would like to know how to cut the plate to make the
+maximum number of chips possible.
+  
+Task
+  
+You are given the dimensions of several silicon plates and a list
+of all bad unit squares for each plate. Your task is to write a program
+that computes for each plate the maximum number of chips that can be
+cut out of the plate.
+
+Input
+
+The
+first line of the input file consists of a single integer D (1 <= D
+<= 5), denoting the number of silicon plates. D blocks follow, each
+describing one silicon plate. The first line of each block contains
+three integers N (1 <= N <= 150), M (1 <= M <= 10), K (0
+<= K <= MN) separated by single spaces. N is the length of the
+plate, M is its height and K is the number of bad squares in the plate.
+The following K lines contain a list of bad squares. Each line consists
+of two integers x and y (1 <= x <= N, 1 <= y <= M)
+?coordinates of one bad square (the upper left square has coordinates
+[1, 1], the bottom right is [N,M]).
+
+Output
+
+For
+each plate in the input file output a single line containing the
+maximum number of memory chips that can be cut out of the plate.
+
+Sample Input
+    
+    2<br></br>6 6 5<br></br>1 4<br></br>4 6<br></br>2 2<br></br>3 6<br></br>6 4<br></br>6 5 4<br></br>3 3<br></br>6 1<br></br>6 2<br></br>6 4<br></br>
+
+Sample Output
+    
+    3<br></br>4<br></br><br></br>还记得刚看到题目的时候，一开始想到的是DFS……因为点不太多，但是发现找不到一个好的搜索策略……虽然注意到M<=10，但是想不到怎么利用，又想可能是DP，但是想不到怎么DP……状态都没想到……<br></br>想了一个晚上竟然……最后放弃，看了Discuss，看到标题大都是DP，三进制啥的……原来是一道状态压缩的DP……话说其实也不是第一次作状态压缩的题目了……于是继续想DP的办法……想了半天还是很混乱……然后我贸然就写代码了……在没有想清楚状态转移方程的情况下……Sample都过不了……<br></br>最后决定baidu一下别人的代码……看了别人的一些报告和代码……发现状态转移居然用的DFS……以前都没遇到过这种题目……第一次遇到……题目做的还是少阿……<br></br>话说知道了是DFS，我竟然还是想不到具体怎么DFS……想到一些比较朴素的方法，但是感觉速度会很慢……<br></br>继续看代码……看到一个写得很装B的代码（为什么说装B呢……因为代码很短，而且作者刻意地想要让自己的代码显得短），60行的样子……居然可以……不过话说回来……虽说装B，不过这种状态转移的办法确实很不错……要是我的话绝对想不到……附上地址：http://read.pudn.com/downloads81/sourcecode/others/312921/poj1038%E5%91%A8%E4%BC%9F.cpp__.htm<br></br>除了这种强悍的，也有一些方法相对朴素的，就是在DFS的时候传递一个数组，每次进行编码。<br></br>我按照朴素的写了一个出来，DEBUG了一些小错误之后AC了，速度出乎意料的快，居然只用了650多MS……排第9……神奇了……不过第一的那个只用了110MS……又按照那个很巧妙的办法改写了一下dfs重新写了一个，提交之后花了2000多MS……悲剧……代码短不一定速度快阿……<br></br>说一下思路吧……这题目确实挺不错的……<br></br><br></br>最基本的思想就是状态压缩，对于到达某1列的时候，用3进制表示它右边的两行的状态，0，1，2分别表示右边两个都空，占用1个与占用两个。<br></br>然后就能DP了……由于内存限制……另外DP的时候只跟前一列有关系，所以可以用滚动数组。<br></br>具体在写的时候有个比较实用的预处理。<br></br>记录某个点不能使用的时候不是记录点坐标，而是开两个数组，对于每一个不能使用的点，把由于这个点而不能摆放的长方形都找出来，然后标记一下，这样到DP的时候能够少打不少字……<br></br>然后状态转移的方法刚刚提到了，是DFS。有两种策略，先说我用的策略，朴素，但是实际结果下来速度反而快。<br></br>对于每一列的每一个状态，把状态解码放到一个数组里面，进行DFS，相当于把每个状态能够推出来的所有状态都DFS出来。具体作的时候由于牵扯到数组了，感觉会比较慢……实际反而快……不知为何……<br></br>另外一种方法，感觉很巧妙，直接对于每一列进行一次DFS，DFS的时候带两个状态参数，分别表示此列状态和上一列状态，然后求出所有能够从p2推到p1的状态对……哎……感觉说不清楚……直接附上代码……<br></br>方法1：<br></br>#include <stdio.h><br></br>#include <string.h><br></br><br></br>#define MAX 59049<br></br><br></br>short a[2][MAX];<br></br>bool CouldH[155][11], CouldV[155][11];<br></br>int n, m, nBad;<br></br>int power[11];<br></br><br></br>void Init()<br></br>{<br></br>    int i;<br></br>    power[0] = 1;<br></br>    for(i=1; i<=10; i++){<br></br>        power[i] = power[i-1]*3;<br></br>    }<br></br>}<br></br>void InitCase()<br></br>{<br></br>    memset(a, 0, sizeof(a));<br></br>    memset(CouldH, true, sizeof(CouldH));<br></br>    memset(CouldV, true, sizeof(CouldV));<br></br>    scanf("%d%d%d", &n, &m, &nBad);<br></br>    int i, j, x, y;<br></br>    while(nBad --){<br></br>        scanf("%d%d", &x, &y);<br></br>        for(i=-2; i<=0; i++)<br></br>            for(j=-1; j<=0; j++){<br></br>                if(x+i >= 0 && y+j > 0)<br></br>                    CouldH[x+i][y+j-1] = false;<br></br>                if(x+j >= 0 && y+i > 0)<br></br>                    CouldV[x+j][y+i-1] = false;<br></br>            }<br></br>    }<br></br>    for(i=0; i<=n; i++){<br></br>        CouldH[i][m-1] = false;<br></br>        CouldV[i][m-1]=CouldV[i][m-2] = false;<br></br>    }<br></br>    for(i=0; i<m; i++){<br></br>        CouldH[n][i] = CouldH[n-1][i] = false;<br></br>        CouldV[n][i] = false;<br></br>    }<br></br>}<br></br><br></br>int CodeMinus(int a[11]){<br></br>    int ret = 0, i;<br></br>    for(i=0; i<m; i++)<br></br>        if(a[i] > 0)<br></br>            ret += (a[i]-1)*power[i];<br></br>    return ret;<br></br>}<br></br><br></br>void Decode(int k, int status[11])<br></br>{<br></br>    for(int i=0; i<m; i++){<br></br>        status[i] = k%3;<br></br>        k = k/3;<br></br>    }<br></br>}<br></br><br></br>void dfs(int i, int j, int status[11], int cnt)<br></br>{<br></br>    if(j >= m){<br></br>        int code = CodeMinus(status);<br></br>        if(a[i%2][code] < cnt)<br></br>            a[i%2][code] = cnt;<br></br>        return ;<br></br>    }<br></br>    if(CouldH[i][j] && status[j] == 0 && status[j+1] == 0){<br></br>        status[j] = status[j+1] = 3;<br></br>        dfs(i, j+2, status, cnt+1);<br></br>        status[j] = status[j+1] = 0;<br></br>    }<br></br>    if(CouldV[i][j] && status[j] == 0 && status[j+1] == 0 && status[j+2] == 0){<br></br>        status[j] = status[j+1] = status[j+2] = 2;<br></br>        dfs(i, j+3, status, cnt+1);<br></br>        status[j] = status[j+1] = status[j+2] = 0;<br></br>    }<br></br>    dfs(i, j+1, status, cnt);<br></br>}<br></br><br></br>void Solve()<br></br>{<br></br>    int now, i, j, status[11];<br></br> 
+    ;   memset(a[0], 0xff, sizeof(a[1]));<br></br>a[0][0] = 0;<br></br>    for(i=1; i<=n; i++){<br></br>        now = i%2;<br></br>        memset(a[now], 0xff, sizeof(a[now]));<br></br>        for(j=0; j< power<p align="center" fromubb="1">­; j++){<br></br>            if(a[1-now][j] < 0)<br></br>                continue;<br></br>            Decode(j, status);<br></br>            dfs(i, 0, status, a[1-now][j]);<br></br>        }<br></br>        <br></br>    }<br></br>    int ans = 0;<br></br>    for(i=0; i < power<p align="center" fromubb="1">­; i++){<br></br>        if(ans < a[n%2][i])<br></br>            ans = a[n%2][i];<br></br>    }<br></br>    printf("%d\n", ans);<br></br>}<br></br><br></br>int main()<br></br>{<br></br>    int nCase;<br></br>    scanf("%d", &nCase);<br></br>    Init();<br></br>    while(nCase--){<br></br>        InitCase();<br></br>        Solve();<br></br>    }<br></br>    return 0;<br></br>}<br></br>方法2：<br></br>#include <stdio.h><br></br>#include <string.h><br></br><br></br>#define MAX 59049<br></br><br></br>short a[2][MAX];<br></br>bool CouldH[155][11], CouldV[155][11];<br></br>int n, m, nBad;<br></br>int power[11];<br></br><br></br>void Init()<br></br>{<br></br>    int i;<br></br>    power[0] = 1;<br></br>    for(i=1; i<=10; i++){<br></br>        power[i] = power[i-1]*3;<br></br>    }<br></br>}<br></br>void InitCase()<br></br>{<br></br>    memset(a, 0, sizeof(a));<br></br>    memset(CouldH, true, sizeof(CouldH));<br></br>    memset(CouldV, true, sizeof(CouldV));<br></br>    scanf("%d%d%d", &n, &m, &nBad);<br></br>    int i, j, x, y;<br></br>    while(nBad --){<br></br>        scanf("%d%d", &x, &y);<br></br>        for(i=-2; i<=0; i++)<br></br>            for(j=-1; j<=0; j++){<br></br>                if(x+i >= 0 && y+j > 0)<br></br>                    CouldH[x+i][y+j-1] = false;<br></br>                if(x+j >= 0 && y+i > 0)<br></br>                    CouldV[x+j][y+i-1] = false;<br></br>            }<br></br>    }<br></br>    for(i=0; i<=n; i++){<br></br>        CouldH[i][m-1] = false;<br></br>        CouldV[i][m-1]=CouldV[i][m-2] = false;<br></br>    }<br></br>    for(i=0; i<m; i++){<br></br>        CouldH[n][i] = CouldH[n-1][i] = false;<br></br>        CouldV[n][i] = false;<br></br>    }<br></br>}<br></br><br></br>void dfs(int i, int j, int p1, int p2, int cnt)<br></br>{<br></br>    if(j >= m){<br></br>        if(a[i%2][p1] < a[1-i%2][p2] + cnt)<br></br>            a[i%2][p1] = a[1-i%2][p2]+cnt;<br></br>        return ;<br></br>    }<br></br>    if(CouldH[i][j]){<br></br>        dfs(i, j+2, p1*9+8, p2*9, cnt+1);<br></br>    }<br></br>    if(CouldV[i][j]){<br></br>        dfs(i, j+3, p1*27+13, p2*27, cnt+1);<br></br>    }<br></br>    dfs(i, j+1, p1*3, p2*3+1, cnt);<br></br>    dfs(i, j+1, p1*3+1, p2*3+2, cnt);<br></br>    dfs(i, j+1, p1*3, p2*3, cnt);<br></br>}<br></br><br></br>void Solve()<br></br>{<br></br>    int now, i;<br></br>    memset(a[0], 0xff, sizeof(a[1]));<br></br>    a[0][0] = 0;<br></br>    for(i=1; i<=n; i++){<br></br>        now = i%2;<br></br>        memset(a[now], 0xff, sizeof(a[now]));<br></br>        dfs(i, 0, 0, 0, 0); <br></br>    }<br></br>    int ans = 0;<br></br>    for(i=0; i < power<p align="center" fromubb="1">­; i++){<br></br>        if(ans < a[n%2][i])<br></br>            ans = a[n%2][i];<br></br>    }<br></br>    printf("%d\n", ans);<br></br>}<br></br><br></br>int main()<br></br>{<br></br>    int nCase;<br></br>    scanf("%d", &nCase);<br></br>    Init();<br></br>    while(nCase--){<br></br>        InitCase();<br></br>        Solve();<br></br>    }<br></br>    return 0;<br></br>}<br></br><br></br>
+
+
+
+
+
+

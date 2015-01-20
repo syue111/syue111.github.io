@@ -1,0 +1,175 @@
+---
+author: dashashi
+comments: false
+date: 2010-10-27 16:23:00+00:00
+layout: post
+slug: poj1089
+title: POJ1089
+wordpress_id: 399
+categories:
+- 解题报告
+tags:
+- poj
+---
+
+
+
+
+
+
+比较悲剧的一道题目……话说不悲剧的我都不写日志……
+
+先上题目
+
+
+Intervals
+
+
+
+
+
+<table align="center" >
+<tbody >
+<tr >
+
+<td >**Time Limit:** 1000MS
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Memory Limit:** 10000K
+</td>
+</tr>
+<tr >
+
+<td >**Total Submissions:** 5147
+</td>
+
+<td width="10px" >
+</td>
+
+<td >**Accepted:** 1999
+</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+Description
+
+
+
+
+
+There
+is given the series of n closed intervals [ai; b i], where i=1,2,...,n.
+The sum of those intervals may berepresented as a sum of closed
+pairwise non−intersecting intervals. The task is to find such
+representation with the minimal number of intervals. The intervals of
+this representation should be written in the output file in acceding
+order. We say that the intervals [a; b] and [c; d] are in ascending
+order if, and only if a <= b < c <= d.
+
+Task
+
+Write a program which:
+
+.reads from the std input the description of the series of intervals,
+
+.computes pairwise non−intersecting intervals satisfying the conditions given above,
+
+.writes the computed intervals in ascending order into std output
+
+
+
+
+Input<!-- more -->
+
+
+
+
+
+In
+the first line of input there is one integer n, 3 <= n <= 50000.
+This is the number of intervals. In the (i+1)−st line, 1 <= i <=
+n, there is a description of the interval [ai; bi] in the form of two
+integers ai and bi separated by a single space, which are respectively
+the beginning and the end of the interval,1 <= ai <= bi <=
+1000000.
+
+
+
+
+Output
+
+
+
+
+
+The
+output should contain descriptions of all computed pairwise
+non−intersecting intervals. In each line should be written a description
+of one interval. It should be composed of two integers, separated by a
+single space, the beginning and the end of the interval respectively.
+The intervals should be written into the output in ascending order.
+
+
+
+
+Sample Input
+
+
+
+
+    
+    5
+    5 6
+    1 4
+    10 10
+    6 9
+    8 10
+
+
+
+
+Sample Output
+
+
+
+
+    
+    1 4
+    5 10
+
+
+
+
+Source
+
+
+
+
+
+[POI VIII Stage 1 Problem 2](http://poj.org/searchproblem?field=source&key=POI+VIII+Stage+1+Problem+2)
+
+意思挺简单的，给你50000个区间，把能够合并的都合并起来，然后按从大到小的顺序输出
+一开始就想到了线段树+离散化
+于是风风火火地开搞……
+写好之后突然发现忘记考虑区间中只有一个点的情况……于是想了个馊主意再每个点的前面跟后面0.1的地方再加上两个点- -方法应该没错，于是提交，MLE……仔细一看，内存限制10M，瞎了……
+于是优化之……先是把动态申请内存的线段树优化掉了，提交，继续MLE，于是又把map也优化掉了，提交，终于不MLE了……这次是TLE……
+仔细看了一下程序，感觉可能TLE的地方只能是map，于是干脆把map改成数组，然后写个二分，提交,WA了……
+接着改了一些无关痛痒的地方，继续WA中……
+看世间花了很久了……我可怜的午觉……干脆就看Discuss……发现其实是一道只要排序的水题…………
+于是改排序……果然马上就AC了……瞎了……
+不过不甘心我的程序为什么会错，继续调试，调试了半天调试不出来，干脆写了个数据生成程序然后两个程序比较结果，终于发现了一个错误，于是又调试了一下……瞎了……彻底瞎了……预开线段树数组的时候少开了一倍………………
+总体来说悲剧啊悲剧………………不行，马上要成都了，+U！
+
+
+
+
+
+
