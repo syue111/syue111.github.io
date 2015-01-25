@@ -18,120 +18,121 @@ categories:
 
 贴个AC代码
 
-    
-    #include <cstdio>
-    #include <cstring>
-    #include <list>
-    #include <vector>
-    #include <algorithm>
-    
-    using namespace std;
-    
-    struct CStudent{
-    	int score, region, result;
-    	list<int> priority;
-    }stu[151];
-    
-    struct CSchool{
-    	int region, cap;
-    }school[51];
-    
-    struct CNode{
-    	int score;//分数，如果所去的学校不是本地则已经乘以了0.7
-    	int t1;//type为0表示本地学生，1表示外地学生，外地学生的0.7跟本地学生相同时取外地学生
-    	int t2;//志愿的优先级，越大优先级越高，顺序是0,-1,-2,-3
-    	int priority, stu_id;//志愿学校
-    	bool operator < (const CNode &other)const{
-    		if(score < other.score){
-    			return true;
-    		}else if(score > other.score){
-    			return false;
-    		}
-    		if(t1 < other.t1){
-    			return true;
-    		}else if(t1 > other.t1){
-    			return false;
-    		}
-    //		if(stu_id != other.stu_id){
-    //			while(true);//on error
-    //		}				//加上这句话就死循环，说明数据有问题
-    		if(stu_id > other.stu_id){
-    			return true;
-    		}else if(stu_id < other.stu_id){
-    			return false;
-    		}
-    		if(t2 < other.t2){
-    			return true;
-    		}else{
-    			return false;
-    		}
-    	}
-    };
-    
-    int n, m;
-    
-    void Solve()
-    {
-    	scanf("%d%d", &n, &m);
-    	for(int i = 0; i<n; ++i){
-    		int k;
-    		scanf("%d%d%d", &stu[i].region, &stu[i].score, &k);
-    		stu[i].priority.clear();
-    		stu[i].result = -1;
-    		while(k--){
-    			int tmp;
-    			scanf("%d", &tmp);
-    			stu[i].priority.push_back(tmp-1);
-    		}
-    	}
-    	for(int i = 0; i<m; ++i){
-    		scanf("%d%d", &school[i].region, &school[i].cap);
-    	}
-    	vector<CNode> a;
-    	for(int i = 0; i<n; ++i){
-    		int t = 0;
-    		for(list<int>::iterator j = stu[i].priority.begin(); j!=stu[i].priority.end(); ++j){
-    			a.push_back(CNode());
-    			a.back().priority = *j;
-    			a.back().score = stu[i].score;
-    			a.back().t2 = (t--);
-    			a.back().stu_id = i;
-    			if(school[*j].region == stu[i].region){
-    				a.back().t1 = 0;
-    				a.back().score *= 10;
-    			}else{
-    //				a.back().t1 = 1;
-    //				a.back().score *= 7;,不考虑region，才可以ac
-    				a.back().t1 = 0;
-    				a.back().score *= 10;
-    			}
-    		}
-    	}
-    	sort(a.begin(), a.end());
-    	for(vector<CNode>::reverse_iterator i = a.rbegin(); i!=a.rend(); ++i){
-    		if(stu[i->stu_id].result == -1 && school[i->priority].cap > 0){
-    			school[i->priority].cap--;
-    			stu[i->stu_id].result = i->priority;
-    		}
-    	}
-    	for(int i = 0; i<n; ++i){
-    		if(stu[i].result >= 0){
-    			printf("%d\n",stu[i].result+1);
-    		}else{
-    			printf("not accepted\n");
-    		}
-    	}
-    }
-    
-    int main(int argc, char** argv)
-    {
-    //	freopen("in.txt", "r", stdin);
-    	int nCase;
-    	scanf("%d", &nCase);
-    	while(nCase--){
-    		Solve();
-    		if(nCase != 0)
-    			printf("\n");
-    	}
-    	return 0;
-    }
+{% highlight C %}
+#include <cstdio>
+#include <cstring>
+#include <list>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct CStudent{
+	int score, region, result;
+	list<int> priority;
+}stu[151];
+
+struct CSchool{
+	int region, cap;
+}school[51];
+
+struct CNode{
+	int score;//分数，如果所去的学校不是本地则已经乘以了0.7
+	int t1;//type为0表示本地学生，1表示外地学生，外地学生的0.7跟本地学生相同时取外地学生
+	int t2;//志愿的优先级，越大优先级越高，顺序是0,-1,-2,-3
+	int priority, stu_id;//志愿学校
+	bool operator < (const CNode &other)const{
+		if(score < other.score){
+			return true;
+		}else if(score > other.score){
+			return false;
+		}
+		if(t1 < other.t1){
+			return true;
+		}else if(t1 > other.t1){
+			return false;
+		}
+//		if(stu_id != other.stu_id){
+//			while(true);//on error
+//		}				//加上这句话就死循环，说明数据有问题
+		if(stu_id > other.stu_id){
+			return true;
+		}else if(stu_id < other.stu_id){
+			return false;
+		}
+		if(t2 < other.t2){
+			return true;
+		}else{
+			return false;
+		}
+	}
+};
+
+int n, m;
+
+void Solve()
+{
+	scanf("%d%d", &n, &m);
+	for(int i = 0; i<n; ++i){
+		int k;
+		scanf("%d%d%d", &stu[i].region, &stu[i].score, &k);
+		stu[i].priority.clear();
+		stu[i].result = -1;
+		while(k--){
+			int tmp;
+			scanf("%d", &tmp);
+			stu[i].priority.push_back(tmp-1);
+		}
+	}
+	for(int i = 0; i<m; ++i){
+		scanf("%d%d", &school[i].region, &school[i].cap);
+	}
+	vector<CNode> a;
+	for(int i = 0; i<n; ++i){
+		int t = 0;
+		for(list<int>::iterator j = stu[i].priority.begin(); j!=stu[i].priority.end(); ++j){
+			a.push_back(CNode());
+			a.back().priority = *j;
+			a.back().score = stu[i].score;
+			a.back().t2 = (t--);
+			a.back().stu_id = i;
+			if(school[*j].region == stu[i].region){
+				a.back().t1 = 0;
+				a.back().score *= 10;
+			}else{
+//				a.back().t1 = 1;
+//				a.back().score *= 7;,不考虑region，才可以ac
+				a.back().t1 = 0;
+				a.back().score *= 10;
+			}
+		}
+	}
+	sort(a.begin(), a.end());
+	for(vector<CNode>::reverse_iterator i = a.rbegin(); i!=a.rend(); ++i){
+		if(stu[i->stu_id].result == -1 && school[i->priority].cap > 0){
+			school[i->priority].cap--;
+			stu[i->stu_id].result = i->priority;
+		}
+	}
+	for(int i = 0; i<n; ++i){
+		if(stu[i].result >= 0){
+			printf("%d\n",stu[i].result+1);
+		}else{
+			printf("not accepted\n");
+		}
+	}
+}
+
+int main(int argc, char** argv)
+{
+//	freopen("in.txt", "r", stdin);
+	int nCase;
+	scanf("%d", &nCase);
+	while(nCase--){
+		Solve();
+		if(nCase != 0)
+			printf("\n");
+	}
+	return 0;
+}
+{% endhighlight %}
