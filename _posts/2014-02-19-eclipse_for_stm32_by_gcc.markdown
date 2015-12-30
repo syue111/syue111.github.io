@@ -58,7 +58,10 @@ Eclipse作为开源界最常用的IDE，不仅功能强大，扩展性强大，�
 
 <del>最后从\STM32F4xx_DSP_StdPeriph_Lib_V1.3.0\Project\STM32F4xx_StdPeriph_Templates\TrueSTUDIO\STM32F40_41xxx复制一个链接脚本文件STM32F407IG_FLASH.ld到根目录，并改名为stm32f407vg_flash.ld。这个链接文件是针对F407IG的，如果是其他型号的芯片的话，根据芯片的RAM跟ROM配置修改相应的值，除此之外栈起始地址_estack也得改。另外在最下面libgcc.a ( * )后面加上libnosys.a ( * )，这个是在重定向printf的时候需要用到的，这里不加也不会出错。</del>
 
-最后把mBed里的STM32F407.ld复制到根目录，并改名为stm32f407vg_flash.ld。这是F40x系列的，其他系列的芯片去上层目录找相应的文件。这个链接文件是针对512K ROM，96K RAM的型号的，根据芯片的不同，改成相应的大小。芯片RAM的实际地址是从0x20000000开始的， 这个头文件保留了0x000~0x194，也就是404个字节的空间，具体原因我表示不知道……改的时候记得LENGTH是实际大小减去0x194就OK了。
+最后把mBed里的STM32F407.ld复制到根目录，并改名为stm32f407vg_flash.ld。这是F40x系列的，其他系列的芯片去上层目录找相应的文件。这个链接文件是针对512K ROM，96K RAM的型号的，根据芯片的不同，改成相应的大小。STM32F4芯片的RAM地址是从0x20000000开始的芯片RAM的实际地址是从0x20000000开始的，<del>这个头文件保留了0x000~0x194，也就是404个字节的空间，具体原因我表示不知道……改的时候记得LENGTH是实际大小减去0x194就OK了。</del>但是在mbed中实现了一个动态设置中断向量表的功能 https://github.com/mbedmicro/mbed/blob/9b7d23d47153c298a6d24de9a415202705889d11/libraries/mbed/targets/cmsis/TARGET_STM/TARGET_STM32F4XX/cmsis_nvic.c ，因此保留了从0x20000000开始的404字节空间，由于我们没有用到这个功能，因此这一行可以改成
+    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
+其中128K是内存大小,根据芯片不同数值也不一样
+
 
 文件创建工作算是完成了，完成后的文件结构该是下面这样的：
 
